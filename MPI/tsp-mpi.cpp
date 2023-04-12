@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
         MPI_Send(&buffer, bufSize, MPI_PACKED, 1, 0, MPI_COMM_WORLD);
     }else {
         MPI_Recv(&buffer, bufSize, MPI_PACKED, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Unpack(myElem, bufSize, &position, &buffer[0], bufSize, MPI_BYTE, MPI_COMM_WORLD);
+        MPI_Unpack(buffer, bufSize, &position, &myElem, bufSize, MPI_BYTE, MPI_COMM_WORLD);
         
         printQueueElem(myElem);
     }
