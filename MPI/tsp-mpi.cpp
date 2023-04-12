@@ -38,12 +38,21 @@ int main(int argc, char *argv[]) {
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    int elemsPerProcess = startElems.size() / num_processes;
-    vector<QueueElem> myElems;
+    int position = 0;
+    int bufSize = sizeof(QueueElem) * startElems.size();
+    char* buffer = new char[bufSize];
+    for (int i = 0; i < startElems.size(); i++) {
+        MPI_Pack(&startElems[i], sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
+    }
 
-    MPI_Scatter(&startElems[0], elemsPerProcess*sizeof(QueueElem), MPI_BYTE,
-                &myElems[0], elemsPerProcess*sizeof(QueueElem), MPI_BYTE,
-                0, MPI_COMM_WORLD);
+    // int elemsPerProcess = startElems.size() / num_processes;
+    // vector<QueueElem> myElems;
+
+    // QueueElem data[]
+
+    // MPI_Scatter(&startElems[0], elemsPerProcess, MPI_QueueElem,
+    //             &myElems[0], elemsPerProcess, MPI_QueueElem,
+    //             0, MPI_COMM_WORLD);
 
     PriorityQueue<QueueElem> myQueue;
     while(!myElems.empty()) {
@@ -144,7 +153,7 @@ vector<QueueElem> split_work(int num_processes) {
     }
 
     vector<QueueElem> startElems;
-    startElems.reserve(startQueue.size())
+    startElems.reserve(startQueue.size());
     while (!startQueue.empty()){
         startElems.push_back(startQueue.pop());
     }
