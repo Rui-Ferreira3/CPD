@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
         myElem.tour.resize(numCities);
         MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
-        printf("Tour: %d, %d\n", myElem.tour[0], myElem.tour[1]);
+        printf("Tour: %d\n", myElem.tour[0]);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
