@@ -36,10 +36,13 @@ int main(int argc, char *argv[]) {
         startElems = split_work(num_processes);
 
     // create an MPI data type for QueueElem
-    QueueElem elem = {{0}, 0.0, initialLB(mins), 1, 0};
+    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
     MPI_Datatype elem_type;
     int block_lengths[5] = { 1, 1, 1, 1, 1 };
-    MPI_Datatype types[5] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    MPI_Datatype vector_type;
+    MPI_Type_contiguous(numCities, MPI_INT, &vector_type);
+    MPI_Type_commit(&vector_type);
+    MPI_Datatype types[5] = {vector_type, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
     MPI_Aint displacements[5];
     MPI_Aint start_address, address;
     MPI_Get_address(&elem, &start_address);
@@ -64,6 +67,7 @@ int main(int argc, char *argv[]) {
         QueueElem myElem;
         MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
+        printf("Tour: %d, %d\n", myElem.tour[0], myElem.tour[1]);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
