@@ -32,18 +32,28 @@ int main(int argc, char *argv[]) {
     MPI_Bcast(&distances[0][0], distances.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     // split initial workload
+    int position = 0;
+    int bufSize = sizeof(QueueElem);
+    char* buffer = new char[bufSize];
     vector<QueueElem> startElems;
-    if(rank == 0)
+    QueueElem myElem;
+    if(rank == 0) {
         startElems = split_work(num_processes);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+        
+        MPI_Pack(&startElems[0], sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
 
-    int position = 0;
-    int bufSize = sizeof(QueueElem) * startElems.size();
-    char* buffer = new char[bufSize];
-    for (int i = 0; i < startElems.size(); i++) {
-        MPI_Pack(&startElems[i], sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
+        // Send the buffer to the receiving process
+        /*for loop to send to all processes*/
+        MPI_Send(buffer, bufSize, MPI_PACKED, 1, 0, MPI_COMM_WORLD);
+    }else {
+        MPI_Recv(buffer, bufSize, MPI_PACKED, 0, 0, MPI_COMM_WORLD);
+        MPI_Unpack(buffer, bufSize, 1);
+        myElem = (QueueElem)buffer[0];
+        printQueueElem(myElem);
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     // int elemsPerProcess = startElems.size() / num_processes;
     // vector<QueueElem> myElems;
@@ -54,13 +64,13 @@ int main(int argc, char *argv[]) {
     //             &myElems[0], elemsPerProcess, MPI_QueueElem,
     //             0, MPI_COMM_WORLD);
 
-    PriorityQueue<QueueElem> myQueue;
-    while(!myElems.empty()) {
-        myQueue.push(myElems[-1]);
-        myElems.pop_back();
-    }
-    if(rank == 1)
-        myQueue.print(printQueueElem);
+    // PriorityQueue<QueueElem> myQueue;
+    // while(!myElems.empty()) {
+    //     myQueue.push(myElems[-1]);
+    //     myElems.pop_back();
+    // }
+    // if(rank == 1)
+    //     myQueue.print(printQueueElem);
 
     // calculate tsp
     double start_time = MPI_Wtime();
