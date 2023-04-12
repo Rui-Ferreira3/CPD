@@ -39,28 +39,39 @@ int main(int argc, char *argv[]) {
     vector<int> vec;
     vec.resize(numCities);
     vec[0] = 0;
-    QueueElem elem = {vec, 0.0, 100.0, 1, 0};
     MPI_Datatype elem_type;
-    int block_lengths[5] = { 1, 1, 1, 1, 1 };
-    MPI_Datatype vector_type;
-    MPI_Type_contiguous(numCities, MPI_INT, &vector_type);
-    MPI_Type_commit(&vector_type);
-    MPI_Datatype types[5] = {vector_type, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
-    MPI_Aint displacements[5];
-    MPI_Aint start_address, address;
-    MPI_Get_address(&elem, &start_address);
-    MPI_Get_address(&elem.tour, &address);
-    displacements[0] = address - start_address;
-    MPI_Get_address(&elem.cost, &address);
-    displacements[1] = address - start_address;
-    MPI_Get_address(&elem.bound, &address);
-    displacements[2] = address - start_address;
-    MPI_Get_address(&elem.length, &address);
-    displacements[3] = address - start_address;
-    MPI_Get_address(&elem.node, &address);
-    displacements[4] = address - start_address;
-    MPI_Type_create_struct(5, block_lengths, displacements, types, &elem_type);
+    int lengths[] = {1, 1, 1, 1, 1};  // length of tour and cost, bound, length, and node
+    MPI_Aint displacements[] = {
+            offsetof(QueueElem, tour),
+            offsetof(QueueElem, cost),
+            offsetof(QueueElem, bound),
+            offsetof(QueueElem, lenght),
+            offsetof(QueueElem, node)};
+    MPI_Datatype types[] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    MPI_Type_create_struct(5, lengths, displacements, types, &elem_type);
     MPI_Type_commit(&elem_type);
+    // QueueElem elem = {vec, 0.0, 100.0, 1, 0};
+    // MPI_Datatype elem_type;
+    // int block_lengths[5] = { 1, 1, 1, 1, 1 };
+    // MPI_Datatype vector_type;
+    // MPI_Type_contiguous(numCities, MPI_INT, &vector_type);
+    // MPI_Type_commit(&vector_type);
+    // MPI_Datatype types[5] = {vector_type, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    // MPI_Aint displacements[5];
+    // MPI_Aint start_address, address;
+    // MPI_Get_address(&elem, &start_address);
+    // MPI_Get_address(&elem.tour, &address);
+    // displacements[0] = address - start_address;
+    // MPI_Get_address(&elem.cost, &address);
+    // displacements[1] = address - start_address;
+    // MPI_Get_address(&elem.bound, &address);
+    // displacements[2] = address - start_address;
+    // MPI_Get_address(&elem.length, &address);
+    // displacements[3] = address - start_address;
+    // MPI_Get_address(&elem.node, &address);
+    // displacements[4] = address - start_address;
+    // MPI_Type_create_struct(5, block_lengths, displacements, types, &elem_type);
+    // MPI_Type_commit(&elem_type);
 
     if (rank == 0) {
         // send the array of QueueElem data to process 1
