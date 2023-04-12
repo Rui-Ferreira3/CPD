@@ -31,46 +31,42 @@ int main(int argc, char *argv[]) {
 
     MPI_Bcast(&distances[0][0], distances.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    // split initial workload
-    int position = 0;
-    int bufSize = sizeof(QueueElem);
-    char* buffer = new char[bufSize];
     vector<QueueElem> startElems;
-    QueueElem myElem;
-    if(rank == 0) {
+    if(rank == 0)
         startElems = split_work(num_processes);
-        
-        myElem = startElems[0];
-        MPI_Pack(&myElem, sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
 
-        // Send the buffer to the receiving process
-        /*for loop to send to all processes*/
-        MPI_Send(&buffer, bufSize, MPI_PACKED, 1, 0, MPI_COMM_WORLD);
-    }else {
-        MPI_Recv(&buffer, bufSize, MPI_PACKED, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Unpack(buffer, bufSize, &position, &myElem, bufSize, MPI_BYTE, MPI_COMM_WORLD);
-        
+    // create an MPI data type for QueueElem
+    QueueElem elem = startElems[0];
+    MPI_Datatype elem_type;
+    int block_lengths[5] = { 1, 1, 1, 1, 1 };
+    MPI_Datatype types[5] = { MPI_INT, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT };
+    MPI_Aint displacements[5];
+    MPI_Aint start_address, address;
+    MPI_Get_address(&elem, &start_address);
+    MPI_Get_address(&elem.tour[0], &address);
+    displacements[0] = address - start_address;
+    MPI_Get_address(&elem.cost, &address);
+    displacements[1] = address - start_address;
+    MPI_Get_address(&elem.bound, &address);
+    displacements[2] = address - start_address;
+    MPI_Get_address(&elem.length, &address);
+    displacements[3] = address - start_address;
+    MPI_Get_address(&elem.node, &address);
+    displacements[4] = address - start_address;
+    MPI_Type_create_struct(5, block_lengths, displacements, types, &elem_type);
+    MPI_Type_commit(&elem_type);
+
+    if (rank == 0) {
+        // send the array of QueueElem data to process 1
+        MPI_Send(&elem, 1, elem_type, 1, 0, MPI_COMM_WORLD);
+    } else if (rank == 1) {
+        // receive the array of QueueElem data from process 0
+        QueueElem myElem;
+        MPI_Recv(&recv_elems, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printQueueElem(myElem);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
-
-    // int elemsPerProcess = startElems.size() / num_processes;
-    // vector<QueueElem> myElems;
-
-    // QueueElem data[]
-
-    // MPI_Scatter(&startElems[0], elemsPerProcess, MPI_QueueElem,
-    //             &myElems[0], elemsPerProcess, MPI_QueueElem,
-    //             0, MPI_COMM_WORLD);
-
-    // PriorityQueue<QueueElem> myQueue;
-    // while(!myElems.empty()) {
-    //     myQueue.push(myElems[-1]);
-    //     myElems.pop_back();
-    // }
-    // if(rank == 1)
-    //     myQueue.print(printQueueElem);
 
     // calculate tsp
     double start_time = MPI_Wtime();
