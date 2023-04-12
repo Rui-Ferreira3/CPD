@@ -50,21 +50,14 @@ int main(int argc, char *argv[]) {
 
     if (rank == 0) {
         // send the array of QueueElem data to process 1
-        MPI_Send(&elem, 1, elem_type, 1, 0, MPI_COMM_WORLD);
-        int tour_size = elem.tour.size();
-        MPI_Send(&tour_size, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-        MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, 1, 0, MPI_COMM_WORLD);
-    } else if (rank == 1) {
+        for(int i; i<num_processes; i++) {
+            send_element(i, 0, startElems[i], elem_type);
+            printf("Sent node %d to process %d\n", startElems[i].node, i);
+        }
+    } else {
         // receive the array of QueueElem data from process 0
-        QueueElem myElem;
-        MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        int tour_size;
-        MPI_Recv(&tour_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        vector<int> received_tour(tour_size);
-        MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        myElem.tour = received_tour;
-        printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
-        printf("Tour: %d\n", myElem.tour[0]);
+        QueueElem myElem = recv_element(0, elem_type);
+        printf("Rank: %d Node: %d\n", rank, myElem.node);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -79,6 +72,24 @@ int main(int argc, char *argv[]) {
 
     MPI_Finalize();
     return 0;
+}
+
+void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
+    MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
+    int tour_size = elem.tour.size();
+    MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
+    MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, 1, 0, MPI_COMM_WORLD);
+}
+
+QueueElem recv_element(int tag, MPI_Datatype elem_type) {
+    QueueElem myElem;
+    MPI_Recv(&myElem, 1, elem_type, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int tour_size;
+    MPI_Recv(&tour_size, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    vector<int> received_tour(tour_size);
+    MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    myElem.tour = received_tour;
+    return myElem;
 }
 
 void parse_inputs(int argc, char *argv[]) {
