@@ -55,21 +55,7 @@ int main(int argc, char *argv[]) {
             send_element(i, 0, startElems[i], elem_type);
             printf("Sent node %d to process %d\n", startElems[i].node, i);
         }
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    if(rank == 1) {
-        // receive the array of QueueElem data from process 0
-        QueueElem myElem = recv_element(0, elem_type);
-        printf("Rank: %d Node: %d\n", rank, myElem.node);
-    }
-    if(rank == 2) {
-        // receive the array of QueueElem data from process 0
-        QueueElem myElem = recv_element(0, elem_type);
-        printf("Rank: %d Node: %d\n", rank, myElem.node);
-    }
-    if(rank == 3) {
+    }else {
         // receive the array of QueueElem data from process 0
         QueueElem myElem = recv_element(0, elem_type);
         printf("Rank: %d Node: %d\n", rank, myElem.node);
@@ -98,11 +84,12 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
 
 QueueElem recv_element(int tag, MPI_Datatype elem_type) {
     QueueElem myElem;
-    MPI_Recv(&myElem, 1, elem_type, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int status = MPI_Irecv(&myElem, 1, elem_type, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    printf("Rank: %d status: %d\n", rank, status);
     int tour_size;
-    MPI_Recv(&tour_size, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Irecv(&tour_size, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     vector<int> received_tour(tour_size);
-    MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Irecv(received_tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     myElem.tour = received_tour;
     return myElem;
 }
