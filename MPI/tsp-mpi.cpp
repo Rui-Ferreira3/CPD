@@ -39,17 +39,17 @@ int main(int argc, char *argv[]) {
     QueueElem myElem;
     if(rank == 0) {
         startElems = split_work(num_processes);
-
         
-        MPI_Pack(&startElems[0], sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
+        myElem = startElems[0];
+        MPI_Pack(&myElem, sizeof(QueueElem), MPI_BYTE, buffer, bufSize, &position, MPI_COMM_WORLD);
 
         // Send the buffer to the receiving process
         /*for loop to send to all processes*/
         MPI_Send(&buffer, bufSize, MPI_PACKED, 1, 0, MPI_COMM_WORLD);
     }else {
         MPI_Recv(&buffer, bufSize, MPI_PACKED, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Unpack(buffer, bufSize, &position, &buffer[0], bufSize, MPI_BYTE, MPI_COMM_WORLD);
-        myElem = (QueueElem)buffer[0];
+        MPI_Unpack(myElem, bufSize, &position, &buffer[0], bufSize, MPI_BYTE, MPI_COMM_WORLD);
+        
         printQueueElem(myElem);
     }
 

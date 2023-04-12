@@ -3,7 +3,7 @@
 # compiler flags:
 #  -g     - this flag adds debugging information to the executable file
 #  -Wall  - this flag is used to turn on most compiler warnings
-NUM_PROCESSES = 4
+NUM_PROCESSES = 2
 FILE = gen10-20.in
 VAL = 20
 # The build target
