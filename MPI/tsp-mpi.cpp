@@ -37,30 +37,32 @@ int main(int argc, char *argv[]) {
 
     // create an MPI data type for QueueElem
     MPI_Datatype elem_type;
-    int lengths[] = {1, 1, 1, 1, 1};
+    int lengths[] = {1, 1, 1, 1};
     MPI_Aint displacements[] = {
-            offsetof(QueueElem, tour),
             offsetof(QueueElem, cost),
             offsetof(QueueElem, bound),
             offsetof(QueueElem, length),
             offsetof(QueueElem, node)};
-    MPI_Datatype types[] = {MPI_INT, MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
-    MPI_Type_create_struct(5, lengths, displacements, types, &elem_type);
+    MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
     MPI_Type_commit(&elem_type);
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         MPI_Send(&elem, 1, elem_type, 1, 0, MPI_COMM_WORLD);
-        MPI_Send(&(elem.tour.size()), 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-        MPI_Send(&(elem.tour.data()), elem.tour.size(), MPI_INT, 1, 0, MPI_COMM_WORLD);
+        int tour_size = elem.tour.size();
+        MPI_Send(&tour_size, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+        MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, 1, 0, MPI_COMM_WORLD);
     } else if (rank == 1) {
         // receive the array of QueueElem data from process 0
         QueueElem myElem;
         MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         int tour_size;
         MPI_Recv(&tour_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(&myElem.tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        vector<int> received_tour(tour_size);
+        MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        myElem.tour = received_tour;
         printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
         printf("Tour: %d\n", myElem.tour[0]);
     }
