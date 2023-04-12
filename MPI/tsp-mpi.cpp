@@ -50,11 +50,15 @@ int main(int argc, char *argv[]) {
 
     if (rank == 0) {
         // send the array of QueueElem data to process 1
-        for(int i; i<num_processes; i++) {
+        for(int i=1; i<num_processes; i++) {
             send_element(i, 0, startElems[i], elem_type);
             printf("Sent node %d to process %d\n", startElems[i].node, i);
         }
-    } else {
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if(rank != 0) {
         // receive the array of QueueElem data from process 0
         QueueElem myElem = recv_element(0, elem_type);
         printf("Rank: %d Node: %d\n", rank, myElem.node);
