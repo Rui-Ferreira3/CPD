@@ -48,19 +48,17 @@ int main(int argc, char *argv[]) {
     MPI_Type_commit(&elem_type);
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
-    for(int i=1; i<num_processes; i++) {
-        if(rank == 0) {
-            // send the array of QueueElem data to process 1
-            // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
-            send_element(i, 0, startElems[i], elem_type);
+    if (rank == 0) {
+        // send the array of QueueElem data to process 1
+        // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
+        for(int i=0; i<num_processes; i++) {
+            send_element(i, i, startElems[i], elem_type);
             printf("Sent node %d to process %d\n", startElems[i].node, i);
-        } 
-        if(rank == i) {
-            // receive the array of QueueElem data from process 0
-            QueueElem myElem = recv_element(0, elem_type);
-            printf("Rank: %d Node: %d\n", i, myElem.node);
         }
     }
+    // receive the array of QueueElem data from process 0
+    QueueElem myElem = recv_element(rank, elem_type);
+    printf("Rank: %d Node: %d\n", rank, myElem.node);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
