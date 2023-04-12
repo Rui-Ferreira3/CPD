@@ -36,7 +36,10 @@ int main(int argc, char *argv[]) {
         startElems = split_work(num_processes);
 
     // create an MPI data type for QueueElem
-    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
+    vector<int> vec;
+    vec.resize(numCities);
+    vec[0] = 0;
+    QueueElem elem = {vec, 0.0, 100.0, 1, 0};
     MPI_Datatype elem_type;
     int block_lengths[5] = { 1, 1, 1, 1, 1 };
     MPI_Datatype vector_type;
@@ -46,7 +49,7 @@ int main(int argc, char *argv[]) {
     MPI_Aint displacements[5];
     MPI_Aint start_address, address;
     MPI_Get_address(&elem, &start_address);
-    MPI_Get_address(&elem.tour[0], &address);
+    MPI_Get_address(&elem.tour, &address);
     displacements[0] = address - start_address;
     MPI_Get_address(&elem.cost, &address);
     displacements[1] = address - start_address;
@@ -65,6 +68,7 @@ int main(int argc, char *argv[]) {
     } else if (rank == 1) {
         // receive the array of QueueElem data from process 0
         QueueElem myElem;
+        myElem.tour.resize(numCities);
         MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
         printf("Tour: %d, %d\n", myElem.tour[0], myElem.tour[1]);
