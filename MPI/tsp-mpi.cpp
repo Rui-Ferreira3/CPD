@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         // receive the array of QueueElem data from process 0
         QueueElem myElem;
         MPI_Recv(&myElem, 1, elem_type, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        printQueueElem(myElem);
+        printf("Received data: cost=%f, bound=%f, length=%d, node=%d\n", myElem.cost, myElem.bound, myElem.length, myElem.node);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
