@@ -265,7 +265,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 cnt = 0;
             }else
                 cnt++;
-            printf("Iteration %d of rank %d\n", cnt, rank);
+            // printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
         int size = myQueue.size();
@@ -286,7 +286,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
 
     int flag;
     
-    printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
+    // printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
     for(int i=0; i<NUM_ITERATIONS; i++) {
         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
         if(flag) {
@@ -294,7 +294,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
             myQueue.push(newElem);
         }
     }
-    printf("Process %d queue finished receiving elements. New queue size is %d\n", rank, myQueue.size());
+    // printf("Process %d queue finished receiving elements. New queue size is %d\n", rank, myQueue.size());
 }
 
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
@@ -356,11 +356,11 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }
 
     if(myQueue.size() >= 2*NUM_ITERATIONS) {
-        printf("Process %d queue sending elements. Queue size is %d\n", rank, myQueue.size());
+        // printf("Process %d queue sending elements. Queue size is %d\n", rank, myQueue.size());
         for(int i=0; i<NUM_ITERATIONS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
-        printf("Process %d queue finished sending elements. New queue size is %d\n", rank, myQueue.size());
+        // printf("Process %d queue finished sending elements. New queue size is %d\n", rank, myQueue.size());
     }
 }
 
