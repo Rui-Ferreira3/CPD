@@ -259,13 +259,14 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }
             }else 
                 create_children(myElem, myQueue, mins);
-        }
 
-        if(cnt > NUM_ITERATIONS) {
-            redistribute_elements(myQueue, rank, elem_type);
-            cnt = 0;
-        }else
-            cnt++;
+            if(cnt > NUM_ITERATIONS) {
+                redistribute_elements(myQueue, rank, elem_type);
+                cnt = 0;
+            }else
+                cnt++;
+            printf("Iteration %d of rank %d\n", cnt, rank);
+        }
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
