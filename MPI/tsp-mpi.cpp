@@ -330,14 +330,12 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }else {
         source = rank+1;
     }
-    printf("Dest: %d Source: %d\n",dest ,source);
-    // return;
 
-    if(myQueue.size() > NUM_SWAPS) {
+    // if(myQueue.size() > NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
-    }
+    // }
 
     int flag;
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
