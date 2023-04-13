@@ -259,8 +259,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(cnt > NUM_ITERATIONS) {
             redistribute_elements(myQueue, rank, elem_type);
             cnt = 0;
-        } else
-            cnt++;
+        }
+        cnt++;
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -333,7 +333,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     printf("Dest: %d Source: %d\n",dest ,source);
     return;
 
-    if(myQueue.size() > NUM_ITERATIONS) {
+    if(myQueue.size() > NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
