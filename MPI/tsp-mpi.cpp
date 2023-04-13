@@ -267,8 +267,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         // cnt++;
         
         int size = myQueue.size();
-        printf("Rank %d Size %d\n", rank, size);
         MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        printf("Rank %d Size %d\n", rank, flag);
     }
 
     return make_pair(BestTour, BestTourCost);
