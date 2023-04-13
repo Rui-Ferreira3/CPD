@@ -84,8 +84,8 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue);
 
-    printf("Rank %d\n", rank);
-    print_result(results.first, results.second);
+    // printf("Rank %d\n", rank);
+    // print_result(results.first, results.second);
 
     double costs[num_processes];
     MPI_Gather(&results.second, 1, MPI_DOUBLE,
@@ -162,10 +162,6 @@ void parse_inputs(int argc, char *argv[]) {
 void print_result(vector <int> BestTour, double BestTourCost) {
     if(BestTour.size() != numCities+1) {
         cout << "NO SOLUTION" << endl;
-        for(int i=0; i<BestTour.size(); i++) {
-            cout << BestTour[i] << " ";
-        }
-        cout << endl;
     } else {
         cout.precision(1);
         cout << fixed << BestTourCost << endl;
@@ -199,11 +195,12 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
     vector<pair<double,double>> mins = get_mins();
 
-    vector <int> BestTour = {0};
+    vector <int> BestTour;
     BestTour.reserve(numCities+1);
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
+        printQueueElem(myElem);
 
         if(myElem.bound >= BestTourCost)
             break;
@@ -220,11 +217,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
         }else 
             create_children(myElem, myQueue, mins);
     }
-
-    for(int i=0; i<BestTour.size(); i++) {
-        cout << BestTour[i] << " ";
-    }
-    cout << endl;
 
     return make_pair(BestTour, BestTourCost);
 }
