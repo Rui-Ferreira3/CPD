@@ -64,12 +64,13 @@ int main(int argc, char *argv[]) {
 
         for(int h=last; h<startElems.size(); h++) {
             myQueue.push(startElems[h]);
-            printf("Rank: %d Node: %d\n", rank, startElems[0].node);
+            printf("Rank: %d Node: %d\n", rank, startElems[h].node);
         }
     }else {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
             QueueElem myElem = recv_element(0, elem_type);
+            printf("Received node %d in process %d\n", myElem.node, rank);
             myQueue.push(myElem);
             printf("Rank: %d Node: %d\n", rank, myElem.node);
         }
