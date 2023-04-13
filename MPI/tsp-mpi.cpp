@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 
         end_time = MPI_Wtime();
 
-        
+        fprintf(stderr, "%fs\n", end_time-start_time);
 
         print_result(best_tour, min_cost);
     }
