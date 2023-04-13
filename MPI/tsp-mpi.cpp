@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     // myQueue.print(printQueueElem);
 
     // calculate tsp
-    pair<vector<int>, double> results = tsp(myQueue, rank);
+    pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
     // printf("Rank %d\n", rank);
     // print_result(results.first, results.second);
@@ -228,7 +228,7 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
     }
 }
 
-pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
+pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     vector<pair<double,double>> mins = get_mins();
 
     vector <int> BestTour;
@@ -256,8 +256,10 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
         }else 
             create_children(myElem, myQueue, mins);
 
-        if(cnt > NUM_ITERATIONS)
-            redistribute_elements(myQueue, rank);
+        if(cnt > NUM_ITERATIONS) {
+            redistribute_elements(myQueue, rank, elem_type);
+            cnt = 0;
+        }
 
         cnt++;
     }
@@ -315,7 +317,7 @@ void update_BestTour(int rank, vector <int> &BestTour) {
     }
 }
 
-void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     int dest;
     if (rank==0)
         dest = num_processes-1;

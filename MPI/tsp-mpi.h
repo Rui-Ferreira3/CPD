@@ -33,4 +33,3 @@ double BestTourCost;
 int numCities, numRoads;
 vector <vector <double>> distances;
 int num_processes;
-MPI_Datatype elem_type;
