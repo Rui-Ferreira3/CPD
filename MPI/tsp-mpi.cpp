@@ -285,15 +285,16 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     }
 
     int flag;
-    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-    if(flag) {
-        printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
-        for(int i=0; i<NUM_ITERATIONS; i++) {
+    
+    printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
+    for(int i=0; i<NUM_ITERATIONS; i++) {
+        MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+        if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
-        printf("Process %d queue finished receiving elements. New queue size is %d\n", rank, myQueue.size());
     }
+    printf("Process %d queue finished receiving elements. New queue size is %d\n", rank, myQueue.size());
 }
 
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
