@@ -353,7 +353,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
-    if(myQueue.size() >= NUM_ITERATIONS) {
+    if(myQueue.size() >= NUM_SWAPS) {
         // printf("Process %d queue sending elements. Queue size is %d\n", rank, myQueue.size());
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
