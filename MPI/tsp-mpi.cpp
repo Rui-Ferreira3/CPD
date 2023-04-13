@@ -272,7 +272,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         // printf("Total number of elements in queues is %d\n", flag);
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     return make_pair(BestTour, BestTourCost);
