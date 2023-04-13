@@ -318,7 +318,7 @@ void update_BestTour(int rank, vector <int> &BestTour) {
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
     int dest;
     if (rank==0)
-        dest = num_processes;
+        dest = num_processes-1;
     else
         dest = rank-1;
 
@@ -330,7 +330,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
 
     int flag;
     int source;
-    if (rank==num_processes)
+    if (rank==num_processes-1)
         source = 0;
     else
         source = rank+1;
