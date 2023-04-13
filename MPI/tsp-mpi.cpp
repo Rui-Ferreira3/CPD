@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
                 0, MPI_COMM_WORLD);
 
     if(rank != 0)
-        MPI_Send(&results.first, results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
+        MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
     
     if(rank == 0) {
         double min_cost = 1000000;
