@@ -256,13 +256,14 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         }else 
             create_children(myElem, myQueue, mins);
 
-        if(cnt > NUM_ITERATIONS) {
-            printf("Rank %d\n", rank);
-            redistribute_elements(myQueue, rank, elem_type);
-            cnt = 0;
-        }
-        cnt++;
+        // if(cnt > NUM_ITERATIONS) {
+        //     printf("Rank %d\n", rank);
+        //     redistribute_elements(myQueue, rank, elem_type);
+        //     cnt = 0;
+        // }
+        // cnt++;
     }
+    printf("Rank %d\n", rank);
 
     return make_pair(BestTour, BestTourCost);
 }
