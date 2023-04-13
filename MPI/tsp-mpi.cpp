@@ -244,21 +244,22 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 
             update_BestTour(rank, BestTour);
 
-            if(myElem.bound >= BestTourCost)
+            if(myElem.bound >= BestTourCost) {
                 myQueue.clear();
-
-            if(myElem.length == numCities) {
-                double dist = distances[myElem.node][0];
-                if(dist > 0) {
-                    if(myElem.cost + dist <= BestTourCost) {
-                        BestTour = myElem.tour;
-                        BestTour.push_back(0);
-                        BestTourCost = myElem.cost + dist;
-                        send_BestTourCost(rank);
+            }else {
+                if(myElem.length == numCities) {
+                    double dist = distances[myElem.node][0];
+                    if(dist > 0) {
+                        if(myElem.cost + dist <= BestTourCost) {
+                            BestTour = myElem.tour;
+                            BestTour.push_back(0);
+                            BestTourCost = myElem.cost + dist;
+                            send_BestTourCost(rank);
+                        }
                     }
-                }
-            }else 
-                create_children(myElem, myQueue, mins);
+                }else 
+                    create_children(myElem, myQueue, mins);
+            }
 
             if(cnt > NUM_ITERATIONS) {
                 redistribute_elements(myQueue, rank, elem_type);
