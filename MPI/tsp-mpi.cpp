@@ -331,21 +331,21 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         source = rank+1;
     }
 
-    if(myQueue.size() > NUM_SWAPS) {
+    // if(myQueue.size() > NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
-    }
+    // }
     printf("Elements sent in %d\n", rank);
 
     // int flag;
     // MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
     // if(flag) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            QueueElem newElem = recv_element(source, 2, elem_type);
-            myQueue.push(newElem);
-        }
-        printf("Elements received in %d\n", rank);
+    for(int i=0; i<NUM_SWAPS; i++) {
+        QueueElem newElem = recv_element(source, 2, elem_type);
+        myQueue.push(newElem);
+    }
+    printf("Elements received in %d\n", rank);
     // }
 }
 
