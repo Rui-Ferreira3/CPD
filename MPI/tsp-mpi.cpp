@@ -182,6 +182,7 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
     for(int v=0; v<numCities; v++) {
         double dist = distances[myElem.node][v];
         if(dist>0 && !visitedCities[v]) {
+            cout << "line 185" << endl;
             double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
             if(newBound <= BestTourCost) {
                 vector <int> newTour = myElem.tour;
