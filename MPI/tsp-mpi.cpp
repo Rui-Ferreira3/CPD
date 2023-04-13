@@ -291,7 +291,6 @@ void send_BestTourCost(int rank) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             MPI_Send(&BestTourCost, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
-            MPI_Request request;
         }
     }
 }
