@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     printf("Rank %d\n", rank);
     print_result(results.first, results.second);
 
-    bestCost = results.second;
+    int bestCost = results.second;
     if(results.first.size() < numCities+1)
         bestCost = -1;
 
@@ -206,7 +206,6 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
             if(newBound <= BestTourCost) {
                 vector <int> newTour = myElem.tour;
                 newTour.push_back(v);
-                printQueueElem({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
                 myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
         }
