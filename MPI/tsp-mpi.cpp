@@ -299,9 +299,7 @@ void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_R
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             double newBest = BestTourCost;
-            MPI_Irecv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &request);
-            int flag;
-            MPI_Wait(&request, &status);
+            MPI_Recv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             if(newBest < BestTourCost) {
                 BestTourCost = newBest;
                 BestTour = {0};
