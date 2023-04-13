@@ -5,7 +5,11 @@
 
 int main(int argc, char *argv[]) {
     double exec_time;
-    double start_time, end_time; 
+    double start_time, end_time;
+
+    int min_cost = 1000000;
+    int min_index;
+    vector<int> best_tour;
 
     // omp_set_num_threads(2);
     
@@ -33,15 +37,6 @@ int main(int argc, char *argv[]) {
 
     for(int i=0; i<numCities; i++) {
         MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    }
-
-    if(rank == 1) {
-        for(int i=0; i<numCities; i++) {
-            for(int j=0; j<numCities; j++) {
-                cout << distances[i][j] << " ";
-            }
-            cout << endl;
-        }
     }
 
     vector<QueueElem> startElems;
@@ -95,24 +90,38 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank);
 
-    // printf("Rank %d\n", rank);
-    // print_result(results.first, results.second);
+    printf("Rank %d\n", rank);
+    print_result(results.first, results.second);
+
+    bestCost = results.second;
+    if(results.first.size() < numCities+1)
+        bestCost = -1;
 
     double costs[num_processes];
-    MPI_Gather(&results.second, 1, MPI_DOUBLE,
+    MPI_Gather(&bestCost, 1, MPI_DOUBLE,
                 &costs[0], 1, MPI_DOUBLE,
                 0, MPI_COMM_WORLD);
 
-    if(rank == 0) {
-        for(int i=0; i<num_processes; i++)
-            printf("Cost %d: %lf\n", i, costs[i]);
-    }
+    if(rank != 0)
+        MPI_Send(&results.first, results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
 
-    if(rank == 0)
+    if(rank == 0) {
+        for(int i=0; i<num_processes; i++) {
+            if(costs[i] < min_cost && costs[i] != -1) {
+                min_cost = costs[i];
+                min_index = i;
+            }
+        }
+        if(min_cost == 1000000) {
+            cout << "NO SOLUTION" << endl;
+        }else {
+            MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+
         end_time = MPI_Wtime();
 
-
-   //  print_result(best_result.first, best_result.second);
+        print_result(best_tour, min_index);
+    }
 
     MPI_Finalize();
     return 0;
@@ -193,7 +202,6 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
     for(int v=0; v<numCities; v++) {
         double dist = distances[myElem.node][v];
         if(dist>0 && !visitedCities[v]) {
-            cout << "line 185" << endl;
             double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
             if(newBound <= BestTourCost) {
                 vector <int> newTour = myElem.tour;
@@ -213,8 +221,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
-        // if(rank == 0)
-        //     printQueueElem(myElem);
 
         if(myElem.bound >= BestTourCost)
             break;
