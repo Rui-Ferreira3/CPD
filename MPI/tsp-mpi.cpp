@@ -233,6 +233,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 
     vector <int> BestTour;
     BestTour.reserve(numCities+1);
+
+    printf("Rank %d Queue Size: %d\n", rank, myQueue.size());
     
     int cnt=0;
     while(myQueue.size() > 0){
@@ -262,8 +264,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         //     cnt = 0;
         // }
         // cnt++;
-        printf("Rank %d Queue Size: %d\n", rank, myQueue.size());
-        break;
         // redistribute_elements(myQueue, rank, elem_type);
     }
 
