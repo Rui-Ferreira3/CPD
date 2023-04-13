@@ -262,6 +262,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         //     cnt = 0;
         // }
         // cnt++;
+        printf("Rank %d Queue Size: %d\n", rank, myQueue.size());
         redistribute_elements(myQueue, rank, elem_type);
     }
 
