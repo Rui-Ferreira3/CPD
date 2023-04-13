@@ -330,8 +330,8 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }else {
         source = rank+1;
     }
-    printf("Dest: %d Source: %d\n",dest ,source);
-    return;
+    // printf("Dest: %d Source: %d\n",dest ,source);
+    // return;
 
     if(myQueue.size() > NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
