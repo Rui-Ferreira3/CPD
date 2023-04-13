@@ -285,12 +285,14 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     }
 
     int flag;
-    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+    
     // printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
-    while(flag){
-        QueueElem newElem = recv_element(source, 2, elem_type);
-        myQueue.push(newElem);
+    for(int i=0; i<NUM_SWAPS; i++) {
         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+        if(flag) {
+            QueueElem newElem = recv_element(source, 2, elem_type);
+            myQueue.push(newElem);
+        }
     }
     // printf("Process %d queue finished receiving elements. New queue size is %d\n", rank, myQueue.size());
 }
