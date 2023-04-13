@@ -264,7 +264,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         // }
         // cnt++;
         redistribute_elements(myQueue, rank, elem_type);
-        size = myQueue.size();
+        int size = myQueue.size();
         MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
