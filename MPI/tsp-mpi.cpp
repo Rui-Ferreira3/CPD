@@ -41,20 +41,22 @@ int main(int argc, char *argv[]) {
     if(rank == 0)
         split_work(num_processes, startElems);
 
-    if (num_processes > 1) {
-        // create an MPI data type for QueueElem
-        MPI_Datatype elem_type;
-        int lengths[] = {1, 1, 1, 1};
-        MPI_Aint displacements[] = {
-                offsetof(QueueElem, cost),
-                offsetof(QueueElem, bound),
-                offsetof(QueueElem, length),
-                offsetof(QueueElem, node)};
-        MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
-        MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
-        MPI_Type_commit(&elem_type);
+    
+    // create an MPI data type for QueueElem
+    MPI_Datatype elem_type;
+    int lengths[] = {1, 1, 1, 1};
+    MPI_Aint displacements[] = {
+            offsetof(QueueElem, cost),
+            offsetof(QueueElem, bound),
+            offsetof(QueueElem, length),
+            offsetof(QueueElem, node)};
+    MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
+    MPI_Type_commit(&elem_type);
 
-        int elementPerProcess = startElems.size()/num_processes;
+    int elementPerProcess = startElems.size()/num_processes;
+
+    if (num_processes > 1) {
         MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
@@ -99,9 +101,11 @@ int main(int argc, char *argv[]) {
         bestCost = -1.0;
 
     double costs[num_processes];
-    MPI_Gather(&bestCost, 1, MPI_DOUBLE,
-                &costs[0], 1, MPI_DOUBLE,
-                0, MPI_COMM_WORLD);
+    if (num_processes > 1) {
+        MPI_Gather(&bestCost, 1, MPI_DOUBLE,
+                    &costs[0], 1, MPI_DOUBLE,
+                    0, MPI_COMM_WORLD);
+    }
 
     if(rank != 0)
         MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
