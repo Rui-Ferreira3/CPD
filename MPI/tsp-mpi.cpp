@@ -237,7 +237,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=1;
     while(flag > 0){
-        if(myQueue.size > 0) {
+        if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
             update_BestTour(rank, BestTour);
