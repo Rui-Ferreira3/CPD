@@ -339,6 +339,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
     for(int i=0; i<NUM_SWAPS; i++) {
         QueueElem newElem = recv_element(2, elem_type);
         myQueue.push(newElem);
+        printf("Element received from %d", source);
     }
 }
 
