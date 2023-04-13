@@ -287,7 +287,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
     if(flag) {
         // printf("Process %d queue receiving elements. Queue size is %d\n", rank, myQueue.size());
-        for(int i=0; i<NUM_SWAPS; i++) {
+        for(int i=0; i<NUM_ITERATIONS; i++) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
@@ -353,9 +353,9 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
-    if(myQueue.size() >= NUM_SWAPS) {
+    if(myQueue.size() >= 2*NUM_ITERATIONS) {
         // printf("Process %d queue sending elements. Queue size is %d\n", rank, myQueue.size());
-        for(int i=0; i<NUM_SWAPS; i++) {
+        for(int i=0; i<NUM_ITERATIONS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
         // printf("Process %d queue finished sending elements. New queue size is %d\n", rank, myQueue.size());
