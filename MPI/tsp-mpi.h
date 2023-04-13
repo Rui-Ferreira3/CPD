@@ -19,6 +19,7 @@ pair<vector <int>, double> tsp();
 
 void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
 QueueElem recv_element(int tag, MPI_Datatype elem_type);
+void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins);
 vector<QueueElem> split_work(int num_processes);
 vector<pair<double,double>> get_mins();
 double initialLB(vector<pair<double,double>> &mins);

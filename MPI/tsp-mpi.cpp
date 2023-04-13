@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
-    myQueue.print(printQueueElem);
+    // myQueue.print(printQueueElem);
 
     // calculate tsp
     pair<vector<int>, double> results = tsp();
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
     if(rank == 0) {
         for(int i=0; i<num_processes; i++)
-            printf("Cost %d: %lf%d", i, costs[i]);
+            printf("Cost %d: %lf", i, costs[i]);
     }
 
     if(rank == 0)
@@ -169,6 +169,26 @@ void print_result(vector <int> BestTour, double BestTourCost) {
             cout << BestTour[i] << " ";
         }
         cout << endl;
+    }
+}
+
+void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins) {
+    bool visitedCities[numCities] = {false};
+
+    for (int city : myElem.tour) {
+        visitedCities[city] = true;
+    }
+
+    for(int v=0; v<numCities; v++) {
+        double dist = distances[myElem.node][v];
+        if(dist>0 && !visitedCities[v]) {
+            double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
+            if(newBound <= BestTourCost) {
+                vector <int> newTour = myElem.tour;
+                newTour.push_back(v);
+                myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
+            }
+        }
     }
 }
 
