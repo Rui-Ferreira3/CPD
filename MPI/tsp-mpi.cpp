@@ -162,6 +162,8 @@ void parse_inputs(int argc, char *argv[]) {
 void print_result(vector <int> BestTour, double BestTourCost) {
     if(BestTour.size() != numCities+1) {
         cout << "NO SOLUTION" << endl;
+        cout.precision(1);
+        cout << fixed << BestTourCost << endl;
     } else {
         cout.precision(1);
         cout << fixed << BestTourCost << endl;
@@ -197,8 +199,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
 
     vector <int> BestTour;
     BestTour.reserve(numCities+1);
-
-    myQueue.print(printQueueElem);
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
