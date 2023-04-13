@@ -336,6 +336,8 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     else
         source = rank+1;
 
+    printf("Source: %d", source);
+
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
     if(flag) {
         for(int i=0; i<NUM_SWAPS; i++) {
