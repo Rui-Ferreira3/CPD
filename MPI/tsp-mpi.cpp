@@ -48,16 +48,24 @@ int main(int argc, char *argv[]) {
     MPI_Type_commit(&elem_type);
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
+    int elementPerProcess = startElems.size()/num_processes+1;
+    PriorityQueue myQueue;
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
-        for(int i=0; i<num_processes; i++) {
-            send_element(i, 0, startElems[i], elem_type);
-            printf("Sent node %d to process %d\n", startElems[i].node, i);
+        for(int i=1; i<num_processes; i++) {
+            for(int j=0; j<elementPerProcess; j++) {
+                send_element(i, 0, startElems[(i-1)*elementPerProcess+j], elem_type);
+                printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i-1);
+            }
+        }
+        for(int h=(i-1)*elementPerProcess+j; h<startElems.size(); h++) {
+            myQueue.push(startElems[h]);
+            printf("Rank: %d Node: %d\n", rank, startElems[0].node);
         }
     }else {
         // receive the array of QueueElem data from process 0
-        QueueElem myElem = recv_element(rank, elem_type);
+        QueueElem myElem = recv_element(0, elem_type);
         printf("Rank: %d Node: %d\n", rank, myElem.node);
     }
 
