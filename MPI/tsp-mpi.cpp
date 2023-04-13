@@ -264,7 +264,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(cnt > NUM_ITERATIONS) {
             redistribute_elements(myQueue, rank, elem_type);
             cnt = 0;
-            printf("Sending elements from process %d\n", rank);
         }else
             cnt++;
         
@@ -355,6 +354,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
+        printf("Sent elements from process %d\n", rank);
     }
 }
 
