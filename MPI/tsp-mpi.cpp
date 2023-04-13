@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     }else {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
-            QueueElem myElem = recv_element(i, elem_type);
+            QueueElem myElem = recv_element(0, i, elem_type);
             // printf("Received node %d in process %d\n", myElem.node, rank);
             myQueue.push(myElem);
             // printf("Rank: %d Node: %d\n", rank, myElem.node);
@@ -150,11 +150,11 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
 }
 
-QueueElem recv_element(int tag, MPI_Datatype elem_type) {
+QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     QueueElem myElem;
-    MPI_Recv(&myElem, 1, elem_type, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     int tour_size;
-    MPI_Recv(&tour_size, 1, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     vector<int> received_tour(tour_size);
     MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     myElem.tour = received_tour;
@@ -259,9 +259,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(cnt > NUM_ITERATIONS) {
             redistribute_elements(myQueue, rank, elem_type);
             cnt = 0;
-        }
-
-        cnt++;
+        } else
+            cnt++;
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -340,7 +339,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
     if(flag) {
         for(int i=0; i<NUM_SWAPS; i++) {
-            QueueElem newElem = recv_element(2, elem_type);
+            QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
         printf("Elements received from %d\n", source);
