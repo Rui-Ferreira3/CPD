@@ -237,25 +237,27 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=1;
     while(flag > 0){
-        QueueElem myElem = myQueue.pop();
+        if(myQueue.size > 0) {
+            QueueElem myElem = myQueue.pop();
 
-        update_BestTour(rank, BestTour);
+            update_BestTour(rank, BestTour);
 
-        if(myElem.bound >= BestTourCost)
-            myQueue.clear();
+            if(myElem.bound >= BestTourCost)
+                myQueue.clear();
 
-        if(myElem.length == numCities) {
-            double dist = distances[myElem.node][0];
-            if(dist > 0) {
-                if(myElem.cost + dist <= BestTourCost) {
-                    BestTour = myElem.tour;
-                    BestTour.push_back(0);
-                    BestTourCost = myElem.cost + dist;
-                    send_BestTourCost(rank);
+            if(myElem.length == numCities) {
+                double dist = distances[myElem.node][0];
+                if(dist > 0) {
+                    if(myElem.cost + dist <= BestTourCost) {
+                        BestTour = myElem.tour;
+                        BestTour.push_back(0);
+                        BestTourCost = myElem.cost + dist;
+                        send_BestTourCost(rank);
+                    }
                 }
-            }
-        }else 
-            create_children(myElem, myQueue, mins);
+            }else 
+                create_children(myElem, myQueue, mins);
+        }
 
         // if(cnt > NUM_ITERATIONS) {
         //     printf("Rank %d\n", rank);
@@ -263,7 +265,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         //     cnt = 0;
         // }
         // cnt++;
-        redistribute_elements(myQueue, rank, elem_type);
+        
         int size = myQueue.size();
         MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
@@ -341,8 +343,9 @@ int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datat
     //         send_element(dest, 2, myQueue.pop(), elem_type);
     //     }
     // }
-    send_element(dest, 2, myQueue.pop(), elem_type);
-    printf("Elements sent in %d\n", rank);
+    if(myQueue.size() > NUM_SWAPS)
+        send_element(dest, 2, myQueue.pop(), elem_type);
+    // printf("Elements sent in %d\n", rank);
 
     // int flag;
     // MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
@@ -354,7 +357,7 @@ int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datat
     //     printf("Elements received in %d\n", rank);
     // }
     QueueElem newElem = recv_element(source, 2, elem_type);
-    printf("Elements received in %d\n", rank);
+    // printf("Elements received in %d\n", rank);
     return 0;
 }
 
