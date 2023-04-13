@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
             if (num_processes > 1) {
                 MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }else {
-                best_tour = results.second;
+                best_tour = results.first;
             }
         }
 
