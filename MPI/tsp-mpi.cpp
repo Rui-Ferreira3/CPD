@@ -273,8 +273,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             // printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
-        int size = myQueue.size();
         MPI_Barrier(MPI_COMM_WORLD);
+        int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
         printf("Total number of elements in queues is %d\n", flag);
     }
