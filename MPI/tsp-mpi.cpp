@@ -5,6 +5,7 @@
 
 int main(int argc, char *argv[]) {
     double exec_time;
+    double start_time, end_time; 
 
     // omp_set_num_threads(2);
     
@@ -15,6 +16,7 @@ int main(int argc, char *argv[]) {
 
     if(rank == 0) {
         parse_inputs(argc, argv);
+        start_time = MPI_Wtime();
     }
 
     //MPI_Bcast sends the message from the root process to all other processes
@@ -80,9 +82,23 @@ int main(int argc, char *argv[]) {
     myQueue.print(printQueueElem);
 
     // calculate tsp
-    double start_time = MPI_Wtime();
     pair<vector<int>, double> results = tsp();
-    double end_time = MPI_Wtime();
+
+    printf("Rank %d\n", rank);
+    print_result(results.first, results.second);
+
+    double costs[num_processes];
+    MPI_Gather(&results.second, 1, MPI_DOUBLE,
+                &costs[0], 1, MPI_DOUBLE,
+                0, MPI_COMM_WORLD);
+
+    if(rank == 0) {
+        for(int i=0; i<num_processes; i++)
+            printf("Cost %d: %lf%d", i, costs[i]);
+    }
+
+    if(rank == 0)
+        end_time = MPI_Wtime();
 
 
    //  print_result(best_result.first, best_result.second);
@@ -156,9 +172,30 @@ void print_result(vector <int> BestTour, double BestTourCost) {
     }
 }
 
-pair<vector <int>, double> tsp() {
+pair<vector <int>, double> tsp(PriorityQueue<QueueElem> myQueue) {
+    vector<pair<double,double>> mins = get_mins();
+
     vector <int> BestTour = {0};
+    BestTour.reserve(numCities+1);
     
+    while(myQueue.size() > 0){
+        QueueElem myElem = myQueue.pop();
+
+        if(myElem.bound >= BestTourCost)
+            return make_pair(BestTour, BestTourCost);
+
+        if(myElem.length == numCities) {
+            double dist = distances[myElem.node][0];
+            if(dist > 0) {
+                if(myElem.cost + dist <= BestTourCost) {
+                    BestTour = myElem.tour;
+                    BestTour.push_back(0);
+                    BestTourCost = myElem.cost + dist;
+                }
+            }
+        }else 
+            create_children(myElem, myQueue, mins);
+    }
     return make_pair(BestTour, BestTourCost);
 }
 
