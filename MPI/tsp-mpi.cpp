@@ -289,7 +289,8 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
-    }
+    }else
+        printf("No elements to receive in process %d\n", rank);
 }
 
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
