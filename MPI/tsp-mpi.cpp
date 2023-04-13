@@ -229,6 +229,9 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
 }
 
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
+    MPI_Status status;
+    MPI_Request request;
+
     vector<pair<double,double>> mins = get_mins();
 
     vector <int> BestTour;
@@ -237,7 +240,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
 
-        update_BestTour(rank, BestTour);
+        update_BestTour(rank, BestTour, status, request);
 
         if(myElem.bound >= BestTourCost)
             break;
@@ -286,20 +289,25 @@ void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
 
 void send_BestTourCost(int rank) {
     for(int i=0; i<num_processes; i++) {
-        if(i!=rank)
+        if(i!=rank) {
             MPI_Send(&BestTourCost, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
+            MPI_Request request;
+        }
     }
 }
 
-void update_BestTour(int rank, vector <int> &BestTour) {
+void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_Request &request) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             double newBest = BestTourCost;
-            MPI_Request request;
-            MPI_Irecv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &request);
-            if(newBest < BestTourCost) {
-                BestTourCost = newBest;
-                BestTour = {0};
+            MPI_Irecv(newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &request);
+            int flag;
+            MPI_Test(&request, &flag, &status);
+            if(flag) {
+                if(newBest < BestTourCost) {
+                    BestTourCost = newBest;
+                    BestTour = {0};
+                }
             }
         }
     }
