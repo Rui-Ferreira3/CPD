@@ -237,6 +237,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=5;
     while(flag > 0){
+        get_elements(myQueue, rank, elem_type);
+
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
@@ -257,19 +259,37 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }
             }else 
                 create_children(myElem, myQueue, mins);
-        }
 
-        if(cnt > NUM_ITERATIONS) {
-            redistribute_elements(myQueue, rank, elem_type);
-            cnt = 0;
-        }else
-            cnt++;
+            if(cnt > NUM_ITERATIONS) {
+                redistribute_elements(myQueue, rank, elem_type);
+                cnt = 0;
+            }else
+                cnt++;
+        }
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     }
 
     return make_pair(BestTour, BestTourCost);
+}
+
+void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+    int source;
+    if (rank==num_processes-1) {
+        source = 0;
+    }else {
+        source = rank+1;
+    }
+
+    int flag;
+    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+    if(flag) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            QueueElem newElem = recv_element(source, 2, elem_type);
+            myQueue.push(newElem);
+        }
+    }
 }
 
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
@@ -322,7 +342,7 @@ void update_BestTour(int rank, vector <int> &BestTour) {
     }
 }
 
-int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     int dest;
     if (rank==0) {
         dest = num_processes-1;
@@ -330,29 +350,11 @@ int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datat
         dest = rank-1;
     }
 
-    int source;
-    if (rank==num_processes-1) {
-        source = 0;
-    }else {
-        source = rank+1;
-    }
-
     if(myQueue.size() >= NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
     }
-
-    int flag;
-    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-    if(flag) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            QueueElem newElem = recv_element(source, 2, elem_type);
-            myQueue.push(newElem);
-        }
-        printf("Received elements in %d\n", rank);
-    }
-    return 0;
 }
 
 vector<pair<double,double>> get_mins() {
