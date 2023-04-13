@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
     double bestCost = results.second;
     if(results.first.size() < numCities+1)
-        bestCost = -1.0;
+        bestCost = -1.0; 
 
     double costs[num_processes];
     if (num_processes > 1) {
