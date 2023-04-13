@@ -89,9 +89,9 @@ int main(int argc, char *argv[]) {
     // printf("Rank %d\n", rank);
     // print_result(results.first, results.second);
 
-    int bestCost = results.second;
+    double bestCost = results.second;
     if(results.first.size() < numCities+1)
-        bestCost = -1;
+        bestCost = -1.0;
 
     double costs[num_processes];
     MPI_Gather(&bestCost, 1, MPI_DOUBLE,
@@ -101,13 +101,13 @@ int main(int argc, char *argv[]) {
     if(rank != 0)
         MPI_Send(&results.first, results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
 
-    int min_cost = 1000000;
+    double min_cost = 1000000;
     int min_index;
-    vector<int> best_tour(numCities);
+    vector<int> best_tour(numCities+1);
     
     if(rank == 0) {
         for(int i=0; i<num_processes; i++) {
-            if(costs[i] < min_cost && costs[i] != -1) {
+            if(costs[i] < min_cost && costs[i] != -1.0) {
                 min_cost = costs[i];
                 min_index = i;
             }
