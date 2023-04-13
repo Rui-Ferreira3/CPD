@@ -49,10 +49,10 @@ int main(int argc, char *argv[]) {
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
     int elementPerProcess = startElems.size()/num_processes;
+    MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
     PriorityQueue<QueueElem> myQueue;
     if (rank == 0) {
         // send the array of QueueElem data to process 1
-        // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
         int last;
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
@@ -66,11 +66,7 @@ int main(int argc, char *argv[]) {
             myQueue.push(startElems[h]);
             printf("Rank: %d Node: %d\n", rank, startElems[h].node);
         }
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    
-    if(rank != 0) {
+    }else {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
             QueueElem myElem = recv_element(i, elem_type);
