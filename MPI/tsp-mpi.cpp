@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
-#define NUM_SWAPS 50
-#define NUM_ITERATIONS 500
+#define NUM_SWAPS 10
+#define NUM_ITERATIONS 50
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -318,10 +318,11 @@ void update_BestTour(int rank, vector <int> &BestTour) {
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     int dest;
-    if (rank==0)
+    if (rank==0) {
         dest = num_processes-1;
-    else
+    }else {
         dest = rank-1;
+    }
 
     if(myQueue.size() > NUM_ITERATIONS) {
         for(int i=0; i<NUM_SWAPS; i++) {
@@ -331,10 +332,11 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
 
     int flag;
     int source;
-    if (rank==num_processes-1)
+    if (rank==num_processes-1) {
         source = 0;
-    else
+    }else {
         source = rank+1;
+    }
 
     printf("Source: %d", source);
 
