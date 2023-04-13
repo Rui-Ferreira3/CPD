@@ -236,13 +236,12 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     
     int cnt=0;
     while(myQueue.size() > 0){
-        printf("Rank %d Queue Size: %d\n", rank, myQueue.size());
         QueueElem myElem = myQueue.pop();
 
         update_BestTour(rank, BestTour);
 
         if(myElem.bound >= BestTourCost)
-            break;
+            myQueue.clear();
 
         if(myElem.length == numCities) {
             double dist = distances[myElem.node][0];
@@ -263,7 +262,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         //     cnt = 0;
         // }
         // cnt++;
-        // redistribute_elements(myQueue, rank, elem_type);
+        redistribute_elements(myQueue, rank, elem_type);
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -334,24 +333,23 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         source = rank+1;
     }
 
-    // if(myQueue.size() > NUM_SWAPS) {
-    //     for(int i=0; i<NUM_SWAPS; i++) {
-    //         send_element(dest, 2, myQueue.pop(), elem_type);
-    //     }
-    // }
+    if(myQueue.size() > NUM_SWAPS) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            send_element(dest, 2, myQueue.pop(), elem_type);
+        }
+    }
     send_element(dest, 2, myQueue.pop(), elem_type);
     printf("Elements sent in %d\n", rank);
 
-    // int flag;
-    // MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-    // if(flag) {
-        // for(int i=0; i<NUM_SWAPS; i++) {
-        //     QueueElem newElem = recv_element(source, 2, elem_type);
-        //     myQueue.push(newElem);
-        // }
-    QueueElem newElem = recv_element(source, 2, elem_type);
-    printf("Elements received in %d\n", rank);
-    // }
+    int flag;
+    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+    if(flag) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            QueueElem newElem = recv_element(source, 2, elem_type);
+            myQueue.push(newElem);
+        }
+        printf("Elements received in %d\n", rank);
+    }
 }
 
 vector<pair<double,double>> get_mins() {
