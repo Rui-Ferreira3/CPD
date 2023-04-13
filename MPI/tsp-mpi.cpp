@@ -35,9 +35,9 @@ int main(int argc, char *argv[]) {
         MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     }
 
-    vector<QueueElem> startElems;
+    PriorityQueue<QueueElem> startElems;
     if(rank == 0)
-        startElems = split_work(num_processes);
+        split_work(num_processes, startElems);
 
     // create an MPI data type for QueueElem
     MPI_Datatype elem_type;
@@ -60,16 +60,14 @@ int main(int argc, char *argv[]) {
         int last;
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
-                send_element(i, j, startElems[(i-1)*elementPerProcess+j], elem_type);
+                send_element(i, j, startElems.pop(), elem_type);
                 // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                 last = i*elementPerProcess;
             }
         }
 
-        for(int h=last; h<startElems.size(); h++) {
-            myQueue.push(startElems[h]);
-            // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
-        }
+        myQueue = startElems;
+        // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
     }else {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
@@ -242,10 +240,9 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     return make_pair(BestTour, BestTourCost);
 }
 
-vector<QueueElem> split_work(int num_processes) {
+void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
     vector<pair<double,double>> mins = get_mins();
 
-    PriorityQueue<QueueElem> startQueue;
     startQueue.push({{0}, 0.0, initialLB(mins), 1, 0});
 
     while(startQueue.size() < num_processes) {
@@ -266,14 +263,6 @@ vector<QueueElem> split_work(int num_processes) {
             }
         }
     }
-
-    vector<QueueElem> startElems;
-    startElems.reserve(startQueue.size());
-    while (!startQueue.empty()){
-        startElems.push_back(startQueue.pop());
-    }
-    
-    return startElems;
 }
 
 vector<pair<double,double>> get_mins() {
