@@ -259,13 +259,14 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }
             }else 
                 create_children(myElem, myQueue, mins);
-
-            if(cnt > NUM_ITERATIONS) {
-                redistribute_elements(myQueue, rank, elem_type);
-                cnt = 0;
-            }else
-                cnt++;
         }
+
+        if(cnt > NUM_ITERATIONS) {
+            redistribute_elements(myQueue, rank, elem_type);
+            cnt = 0;
+            printf("Sending elements from process %d\n", rank);
+        }else
+            cnt++;
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
@@ -289,8 +290,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
-    }else
-        printf("No elements to receive in process %d\n", rank);
+    }
 }
 
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
