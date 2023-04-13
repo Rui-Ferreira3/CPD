@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
 
     int elementPerProcess = startElems.size()/num_processes;
     PriorityQueue<QueueElem> myQueue;
-    cout << startElems.size() << endl;
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
@@ -69,8 +68,11 @@ int main(int argc, char *argv[]) {
         }
     }else {
         // receive the array of QueueElem data from process 0
-        QueueElem myElem = recv_element(0, elem_type);
-        printf("Rank: %d Node: %d\n", rank, myElem.node);
+        for(int i=0; i<elementPerProcess; i++) {
+            QueueElem myElem = recv_element(0, elem_type);
+            myQueue.push(myElem);
+            printf("Rank: %d Node: %d\n", rank, myElem.node);
+        }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
