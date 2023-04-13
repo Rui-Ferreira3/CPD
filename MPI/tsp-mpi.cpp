@@ -338,7 +338,6 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
     }
-    send_element(dest, 2, myQueue.pop(), elem_type);
     printf("Elements sent in %d\n", rank);
 
     int flag;
