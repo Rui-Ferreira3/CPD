@@ -235,8 +235,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     BestTour.reserve(numCities+1);
     
     int cnt=0;
-    int flag=0;
-    while(flag == 0){
+    int flag=1;
+    while(flag > 0){
         QueueElem myElem = myQueue.pop();
 
         update_BestTour(rank, BestTour);
@@ -263,7 +263,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         //     cnt = 0;
         // }
         // cnt++;
-        flag = redistribute_elements(myQueue, rank, elem_type);
+        redistribute_elements(myQueue, rank, elem_type);
+        MPI_Reduce(&myQueue.size(), &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -350,9 +351,7 @@ int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datat
         }
         printf("Elements received in %d\n", rank);
     }
-    int flag_out;
-    MPI_Reduce(&flag, &flag_out, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-    return flag_out;
+    return 0;
 }
 
 vector<pair<double,double>> get_mins() {
