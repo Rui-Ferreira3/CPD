@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
         int last;
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
-                send_element(i, 0, startElems[(i-1)*elementPerProcess+j], elem_type);
+                send_element(i, j, startElems[(i-1)*elementPerProcess+j], elem_type);
                 printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                 last = i*elementPerProcess;
             }
@@ -66,10 +66,14 @@ int main(int argc, char *argv[]) {
             myQueue.push(startElems[h]);
             printf("Rank: %d Node: %d\n", rank, startElems[h].node);
         }
-    }else {
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if(rank != 0) {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
-            QueueElem myElem = recv_element(0, elem_type);
+            QueueElem myElem = recv_element(i, elem_type);
             printf("Received node %d in process %d\n", myElem.node, rank);
             myQueue.push(myElem);
             printf("Rank: %d Node: %d\n", rank, myElem.node);
