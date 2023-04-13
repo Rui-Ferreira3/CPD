@@ -42,18 +42,20 @@ run_all:
 run_local:
 	mpirun -n $(NUM_PROCESSES) tsp-mpi $(FILE) $(VAL)
 
-run_n:
-	@echo N=1
-	srun -n 1 tsp-mpi $(FILE) $(VAL)
-	@echo N=2
-	srun -n 2 tsp-mpi $(FILE) $(VAL)
-	@echo N=4
-	srun -n 4 tsp-mpi $(FILE) $(VAL)
-	@echo N=8
-	srun -n 8 tsp-mpi $(FILE) $(VAL)
-	@echo N=16
-	srun -n 16 tsp-mpi $(FILE) $(VAL)
-	@echo N=32
-	srun -n 32 tsp-mpi $(FILE) $(VAL)
-	@echo N=64
-	srun -n 64 tsp-mpi $(FILE) $(VAL)
+run_all_local:
+	@echo gen10
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen10-20.in 20
+	@echo gen15
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen15-25.in 25
+	@echo gen19
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen19-23.in 23
+	@echo gen20
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen20-5000.in 5000
+	@echo gen22
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen22-25000.in 25000
+	@echo gen24
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen24-50000.in 50000
+	@echo gen26
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen26-50000.in 50000
+	@echo gen30
+	mpirun -n $(NUM_PROCESSES) tsp-mpi gen30-5000.in 5000
