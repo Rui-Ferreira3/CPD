@@ -15,7 +15,7 @@ using namespace std;
 
 void parse_inputs(int argc, char *argv[]);
 void print_result(vector <int> BestTour, double BestTourCost);
-pair<vector <int>, double> tsp(PriorityQueue<QueueElem> myQueue);
+pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue);
 
 void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
 QueueElem recv_element(int tag, MPI_Datatype elem_type);

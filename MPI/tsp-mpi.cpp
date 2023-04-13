@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
     if(rank == 0) {
         for(int i=0; i<num_processes; i++)
-            printf("Cost %d: %lf", i, costs[i]);
+            printf("Cost %d: %lf\n", i, costs[i]);
     }
 
     if(rank == 0)
@@ -192,11 +192,13 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
     }
 }
 
-pair<vector <int>, double> tsp(PriorityQueue<QueueElem> myQueue) {
+pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
     vector<pair<double,double>> mins = get_mins();
 
-    vector <int> BestTour = {0};
+    vector <int> BestTour;
     BestTour.reserve(numCities+1);
+
+    myQueue.print(printQueueElem);
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
