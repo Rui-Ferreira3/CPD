@@ -298,11 +298,15 @@ void send_BestTourCost(int rank) {
 void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_Request &request) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
-            double newBest = BestTourCost;
-            MPI_Recv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            if(newBest < BestTourCost) {
-                BestTourCost = newBest;
-                BestTour = {0};
+            int flag;
+            MPI_Iprobe(i, 1, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+            if(flag) {
+                double newBest = BestTourCost;
+                MPI_Recv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                if(newBest < BestTourCost) {
+                    BestTourCost = newBest;
+                    BestTour = {0};
+                }
             }
         }
     }
