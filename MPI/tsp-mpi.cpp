@@ -1,6 +1,6 @@
 #include "tsp-mpi.h"
 
-#define NUM_SWAPS 50
+#define NUM_SWAPS 10
 #define NUM_ITERATIONS 500
 
 int main(int argc, char *argv[]) {
