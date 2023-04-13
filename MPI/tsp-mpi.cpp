@@ -31,7 +31,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    MPI_Bcast(&distances[0][0], distances.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    for(int i=0; i<numCities; i++) {
+        MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    }
 
     if(rank == 1) {
         for(int i=0; i<numCities; i++) {
