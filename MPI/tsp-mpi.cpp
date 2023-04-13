@@ -350,7 +350,6 @@ int redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datat
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
-        printf("Elements received in %d\n", rank);
     }
     return 0;
 }
