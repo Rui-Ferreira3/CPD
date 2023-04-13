@@ -199,14 +199,14 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
     vector<pair<double,double>> mins = get_mins();
 
-    vector <int> BestTour;
+    vector <int> BestTour = {0};
     BestTour.reserve(numCities+1);
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
 
         if(myElem.bound >= BestTourCost)
-            return make_pair(BestTour, BestTourCost);
+            break;
 
         if(myElem.length == numCities) {
             double dist = distances[myElem.node][0];
@@ -220,6 +220,12 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
         }else 
             create_children(myElem, myQueue, mins);
     }
+
+    for(int i=0; i<BestTour.size(); i++) {
+        cout << BestTour[i] << " ";
+    }
+    cout << endl;
+
     return make_pair(BestTour, BestTourCost);
 }
 
