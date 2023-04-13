@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
 #define NUM_SWAPS 50
-#define NUM_ITERATIONS 1000
+#define NUM_ITERATIONS 500
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -270,7 +270,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        // printf("Total number of elements in queues is %d\n", flag);
+        printf("Total number of elements in queues is %d\n", flag);
     }
 
     return make_pair(BestTour, BestTourCost);
