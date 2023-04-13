@@ -48,8 +48,9 @@ int main(int argc, char *argv[]) {
     MPI_Type_commit(&elem_type);
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
-    int elementPerProcess = startElems.size()/num_processes+1;
+    int elementPerProcess = startElems.size()/num_processes;
     PriorityQueue<QueueElem> myQueue;
+    cout << startElems.size() << endl;
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
@@ -57,10 +58,11 @@ int main(int argc, char *argv[]) {
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
                 send_element(i, 0, startElems[(i-1)*elementPerProcess+j], elem_type);
-                printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i-1);
-                last = (i-1)*elementPerProcess+j;
+                printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
+                last = i*elementPerProcess;
             }
         }
+
         for(int h=last; h<startElems.size(); h++) {
             myQueue.push(startElems[h]);
             printf("Rank: %d Node: %d\n", rank, startElems[0].node);
