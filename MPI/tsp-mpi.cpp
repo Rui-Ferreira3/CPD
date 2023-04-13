@@ -33,6 +33,15 @@ int main(int argc, char *argv[]) {
 
     MPI_Bcast(&distances[0][0], distances.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
+    if(rank == 1) {
+        for(int i=0; i<numCities; i++) {
+            for(int j=0; j<numCities; j++) {
+                cout << distances[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+
     vector<QueueElem> startElems;
     if(rank == 0)
         startElems = split_work(num_processes);
