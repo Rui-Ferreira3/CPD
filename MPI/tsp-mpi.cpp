@@ -19,50 +19,57 @@ int main(int argc, char *argv[]) {
         start_time = MPI_Wtime();
     }
 
-    //MPI_Bcast sends the message from the root process to all other processes
-    MPI_Bcast(&numCities, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&numRoads, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&BestTourCost, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    if(num_processes > 1) {
+        //MPI_Bcast sends the message from the root process to all other processes
+        MPI_Bcast(&numCities, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&numRoads, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&BestTourCost, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    if(rank != 0) {
-        distances.resize(numCities);
-        for(int i=0; i<numCities; i++) {
-            distances[i].resize(numCities);
+        if(rank != 0) {
+            distances.resize(numCities);
+            for(int i=0; i<numCities; i++) {
+                distances[i].resize(numCities);
+            }
         }
-    }
 
-    for(int i=0; i<numCities; i++) {
-        MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        for(int i=0; i<numCities; i++) {
+            MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        }
     }
 
     PriorityQueue<QueueElem> startElems;
     if(rank == 0)
         split_work(num_processes, startElems);
 
-    // create an MPI data type for QueueElem
-    MPI_Datatype elem_type;
-    int lengths[] = {1, 1, 1, 1};
-    MPI_Aint displacements[] = {
-            offsetof(QueueElem, cost),
-            offsetof(QueueElem, bound),
-            offsetof(QueueElem, length),
-            offsetof(QueueElem, node)};
-    MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
-    MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
-    MPI_Type_commit(&elem_type);
-    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
+    if (num_processes > 1) {
+        // create an MPI data type for QueueElem
+        MPI_Datatype elem_type;
+        int lengths[] = {1, 1, 1, 1};
+        MPI_Aint displacements[] = {
+                offsetof(QueueElem, cost),
+                offsetof(QueueElem, bound),
+                offsetof(QueueElem, length),
+                offsetof(QueueElem, node)};
+        MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+        MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
+        MPI_Type_commit(&elem_type);
 
-    int elementPerProcess = startElems.size()/num_processes;
-    MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        int elementPerProcess = startElems.size()/num_processes;
+        MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    }
+
+    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
     PriorityQueue<QueueElem> myQueue;
     if (rank == 0) {
-        // send the array of QueueElem data to process 1
-        int last;
-        for(int i=1; i<num_processes; i++) {
-            for(int j=0; j<elementPerProcess; j++) {
-                send_element(i, j, startElems.pop(), elem_type);
-                // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
-                last = i*elementPerProcess;
+        if (num_processes > 1) {
+            // send the array of QueueElem data to process 1
+            int last;
+            for(int i=1; i<num_processes; i++) {
+                for(int j=0; j<elementPerProcess; j++) {
+                    send_element(i, j, startElems.pop(), elem_type);
+                    // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
+                    last = i*elementPerProcess;
+                }
             }
         }
 
@@ -113,7 +120,11 @@ int main(int argc, char *argv[]) {
         if(min_cost == 1000000) {
             cout << "NO SOLUTION" << endl;
         }else {
-            MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if (num_processes > 1) {
+                MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }else {
+                best_tour = bestCost;
+            }
         }
 
         end_time = MPI_Wtime();

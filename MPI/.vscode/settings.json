@@ -3,6 +3,9 @@
         "iostream": "cpp",
         "vector": "cpp",
         "string": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "new": "cpp",
+        "type_traits": "cpp",
+        "iomanip": "cpp"
     }
 }
