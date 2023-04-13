@@ -100,12 +100,12 @@ int main(int argc, char *argv[]) {
 
     if(rank != 0)
         MPI_Send(&results.first, results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
-
-    double min_cost = 1000000;
-    int min_index;
-    vector<int> best_tour(numCities+1);
     
     if(rank == 0) {
+        double min_cost = 1000000;
+        int min_index;
+        vector<int> best_tour(numCities+1);
+
         for(int i=0; i<num_processes; i++) {
             if(costs[i] < min_cost && costs[i] != -1.0) {
                 min_cost = costs[i];
