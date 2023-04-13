@@ -338,15 +338,15 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }
     printf("Elements sent to %d\n", dest);
 
-    int flag;
-    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-    if(flag) {
+    // int flag;
+    // MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+    // if(flag) {
         for(int i=0; i<NUM_SWAPS; i++) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
         printf("Elements received from %d\n", source);
-    }
+    // }
 }
 
 vector<pair<double,double>> get_mins() {
