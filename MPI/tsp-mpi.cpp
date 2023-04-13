@@ -7,10 +7,6 @@ int main(int argc, char *argv[]) {
     double exec_time;
     double start_time, end_time;
 
-    int min_cost = 1000000;
-    int min_index;
-    vector<int> best_tour;
-
     // omp_set_num_threads(2);
     
     int num_processes, rank;
@@ -90,8 +86,8 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank);
 
-    printf("Rank %d\n", rank);
-    print_result(results.first, results.second);
+    // printf("Rank %d\n", rank);
+    // print_result(results.first, results.second);
 
     int bestCost = results.second;
     if(results.first.size() < numCities+1)
@@ -105,6 +101,10 @@ int main(int argc, char *argv[]) {
     if(rank != 0)
         MPI_Send(&results.first, results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
 
+    int min_cost = 1000000;
+    int min_index;
+    vector<int> best_tour(numCities);
+    
     if(rank == 0) {
         for(int i=0; i<num_processes; i++) {
             if(costs[i] < min_cost && costs[i] != -1) {
