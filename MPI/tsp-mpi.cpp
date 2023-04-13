@@ -236,7 +236,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     
     int cnt=0;
     int flag=1;
-    while(flag > 0){
+    while(myQueue.size() > 0){
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
@@ -266,8 +266,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         // }
         // cnt++;
         
-        int size = myQueue.size();
-        MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        // int size = myQueue.size();
+        // MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
     return make_pair(BestTour, BestTourCost);
