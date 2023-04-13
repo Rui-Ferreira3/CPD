@@ -336,10 +336,12 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
         source = rank+1;
 
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-    for(int i=0; i<NUM_SWAPS; i++) {
-        QueueElem newElem = recv_element(2, elem_type);
-        myQueue.push(newElem);
-        printf("Element received from %d", source);
+    if(flag) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            QueueElem newElem = recv_element(2, elem_type);
+            myQueue.push(newElem);
+            printf("Element received from %d", source);
+        }
     }
 }
 
