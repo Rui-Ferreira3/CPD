@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
 #define NUM_SWAPS 3
-#define NUM_ITERATIONS 30
+#define NUM_ITERATIONS 250
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 
     // omp_set_num_threads(2);
     
-    int num_processes, rank;
+    int rank;
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 
     double bestCost = results.second;
     if(results.first.size() < numCities+1)
-        bestCost = -1.0; 
+        bestCost = -1.0;
 
     double costs[num_processes];
     if (num_processes > 1) {
@@ -128,6 +128,7 @@ int main(int argc, char *argv[]) {
                 MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }else {
                 best_tour = results.first;
+                min_cost = results.second;
             }
         }
 
@@ -234,22 +235,26 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     BestTour.reserve(numCities+1);
     
     while(myQueue.size() > 0){
-        QueueElem myElem = myQueue.pop();
+        for(int i; i<NUM_ITERATIONS; i++) {
+            QueueElem myElem = myQueue.pop();
 
-        if(myElem.bound >= BestTourCost)
-            break;
+            if(myElem.bound >= BestTourCost)
+                break;
 
-        if(myElem.length == numCities) {
-            double dist = distances[myElem.node][0];
-            if(dist > 0) {
-                if(myElem.cost + dist <= BestTourCost) {
-                    BestTour = myElem.tour;
-                    BestTour.push_back(0);
-                    BestTourCost = myElem.cost + dist;
+            if(myElem.length == numCities) {
+                double dist = distances[myElem.node][0];
+                if(dist > 0) {
+                    if(myElem.cost + dist <= BestTourCost) {
+                        BestTour = myElem.tour;
+                        BestTour.push_back(0);
+                        BestTourCost = myElem.cost + dist;
+                    }
                 }
-            }
-        }else 
-            create_children(myElem, myQueue, mins);
+            }else 
+                create_children(myElem, myQueue, mins);
+        }
+
+        redistribute_elements(myQueue, rank);
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -276,6 +281,14 @@ void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
                 newTour.push_back(v);
                 startQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
+        }
+    }
+}
+
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
+    if(myQueue.size() > 2*NUM_ITERATIONS) {
+        for(int i=0; i<num_processes; i++) {
+            
         }
     }
 }

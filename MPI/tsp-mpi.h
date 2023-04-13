@@ -29,3 +29,4 @@ double calculateLB(vector<pair<double,double>> &mins, int f, int t, double LB);
 double BestTourCost;
 int numCities, numRoads;
 vector <vector <double>> distances;
+int num_processes;
