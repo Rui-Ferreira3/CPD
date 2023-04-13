@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     // myQueue.print(printQueueElem);
 
     // calculate tsp
-    pair<vector<int>, double> results = tsp();
+    pair<vector<int>, double> results = tsp(myQueue);
 
     printf("Rank %d\n", rank);
     print_result(results.first, results.second);
