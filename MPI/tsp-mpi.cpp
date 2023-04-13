@@ -308,6 +308,7 @@ void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_R
                     BestTourCost = newBest;
                     BestTour = {0};
                 }
+                MPI_Request_free(&request);
             }
         }
     }
