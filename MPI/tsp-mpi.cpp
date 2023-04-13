@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
-#define NUM_SWAPS 3
-#define NUM_ITERATIONS 250
+#define NUM_SWAPS 50
+#define NUM_ITERATIONS 500
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -229,18 +229,16 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
 }
 
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
-    MPI_Status status;
-    MPI_Request request;
-
     vector<pair<double,double>> mins = get_mins();
 
     vector <int> BestTour;
     BestTour.reserve(numCities+1);
     
+    int cnt=0;
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
 
-        update_BestTour(rank, BestTour, status, request);
+        update_BestTour(rank, BestTour);
 
         if(myElem.bound >= BestTourCost)
             break;
@@ -257,6 +255,11 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
             }
         }else 
             create_children(myElem, myQueue, mins);
+
+        if(cnt > NUM_ITERATIONS)
+            redistribute_elements(myQueue, rank);
+
+        cnt++;
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -295,7 +298,7 @@ void send_BestTourCost(int rank) {
     }
 }
 
-void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_Request &request) {
+void update_BestTour(int rank, vector <int> &BestTour) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             int flag;
@@ -313,10 +316,29 @@ void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_R
 }
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
-    if(myQueue.size() > 2*NUM_ITERATIONS) {
-        for(int i=0; i<num_processes; i++) {
-            
+    int dest;
+    if (rank==0)
+        dest = num_processes;
+    else
+        dest = rank-1;
+
+    if(myQueue.size() > NUM_ITERATIONS) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            send_element(dest, 2, myQueue.pop(), elem_type);
         }
+    }
+
+    int flag;
+    int source;
+    if (rank==num_processes)
+        source = 0;
+    else
+        source = rank+1;
+
+    MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+    for(int i=0; i<NUM_SWAPS; i++) {
+        QueueElem newElem = recv_element(2, elem_type);
+        myQueue.push(newElem);
     }
 }
 
