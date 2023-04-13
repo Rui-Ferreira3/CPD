@@ -53,13 +53,15 @@ int main(int argc, char *argv[]) {
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
+        int last;
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
                 send_element(i, 0, startElems[(i-1)*elementPerProcess+j], elem_type);
                 printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i-1);
+                last = (i-1)*elementPerProcess+j;
             }
         }
-        for(int h=(i-1)*elementPerProcess+j; h<startElems.size(); h++) {
+        for(int h=last; h<startElems.size(); h++) {
             myQueue.push(startElems[h]);
             printf("Rank: %d Node: %d\n", rank, startElems[0].node);
         }
