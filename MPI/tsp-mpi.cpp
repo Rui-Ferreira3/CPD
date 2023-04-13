@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
-#define NUM_SWAPS 1
-#define NUM_ITERATIONS 1
+#define NUM_SWAPS 50
+#define NUM_ITERATIONS 500
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -324,6 +324,15 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
+    int source;
+    if (rank==num_processes-1) {
+        source = 0;
+    }else {
+        source = rank+1;
+    }
+    printf("Dest: %d Source: %d\n",dest ,source);
+    return;
+
     if(myQueue.size() > NUM_ITERATIONS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
@@ -331,15 +340,6 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }
 
     int flag;
-    int source;
-    if (rank==num_processes-1) {
-        source = 0;
-    }else {
-        source = rank+1;
-    }
-
-    printf("Dest: %d Source: %d\n",dest ,source);
-
     MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
     if(flag) {
         for(int i=0; i<NUM_SWAPS; i++) {
