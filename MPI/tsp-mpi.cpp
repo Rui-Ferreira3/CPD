@@ -186,13 +186,14 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
             if(newBound <= BestTourCost) {
                 vector <int> newTour = myElem.tour;
                 newTour.push_back(v);
+                printQueueElem({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
                 myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
         }
     }
 }
 
-pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
+pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     vector<pair<double,double>> mins = get_mins();
 
     vector <int> BestTour;
@@ -200,7 +201,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue) {
     
     while(myQueue.size() > 0){
         QueueElem myElem = myQueue.pop();
-        printQueueElem(myElem);
+        // if(rank == 0)
+        //     printQueueElem(myElem);
 
         if(myElem.bound >= BestTourCost)
             break;
