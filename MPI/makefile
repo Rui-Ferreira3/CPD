@@ -22,10 +22,10 @@ run:
 	srun -n $(NUM_PROCESSES) tsp-mpi $(FILE) $(VAL)
 
 run_all:
-	@echo gen10
-	srun -n $(NUM_PROCESSES) tsp-mpi gen10-20.in 20
-	@echo gen15
-	srun -n $(NUM_PROCESSES) tsp-mpi gen15-25.in 25
+	# @echo gen10
+	# srun -n $(NUM_PROCESSES) tsp-mpi gen10-20.in 20
+	# @echo gen15
+	# srun -n $(NUM_PROCESSES) tsp-mpi gen15-25.in 25
 	@echo gen19
 	srun -n $(NUM_PROCESSES) tsp-mpi gen19-23.in 23
 	@echo gen20
