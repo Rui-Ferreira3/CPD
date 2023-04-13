@@ -336,7 +336,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
     }
-    printf("Elements sent to %d\n", dest);
+    printf("Elements sent in %d\n", rank);
 
     // int flag;
     // MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
@@ -345,7 +345,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
         }
-        printf("Elements received from %d\n", source);
+        printf("Elements received in %d\n", rank);
     // }
 }
 
