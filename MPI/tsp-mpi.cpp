@@ -235,26 +235,25 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank) {
     BestTour.reserve(numCities+1);
     
     while(myQueue.size() > 0){
-        for(int i; i<NUM_ITERATIONS; i++) {
-            QueueElem myElem = myQueue.pop();
+        QueueElem myElem = myQueue.pop();
 
-            if(myElem.bound >= BestTourCost)
-                break;
+        if(myElem.bound >= BestTourCost)
+            break;
 
-            if(myElem.length == numCities) {
-                double dist = distances[myElem.node][0];
-                if(dist > 0) {
-                    if(myElem.cost + dist <= BestTourCost) {
-                        BestTour = myElem.tour;
-                        BestTour.push_back(0);
-                        BestTourCost = myElem.cost + dist;
-                    }
+        if(myElem.length == numCities) {
+            double dist = distances[myElem.node][0];
+            if(dist > 0) {
+                if(myElem.cost + dist <= BestTourCost) {
+                    BestTour = myElem.tour;
+                    BestTour.push_back(0);
+                    BestTourCost = myElem.cost + dist;
+                    send_BestTourCost(rank);
                 }
-            }else 
-                create_children(myElem, myQueue, mins);
-        }
+            }
+        }else 
+            create_children(myElem, myQueue, mins);
 
-        redistribute_elements(myQueue, rank);
+        update_BestTour(rank, BestTour);
     }
 
     return make_pair(BestTour, BestTourCost);
@@ -280,6 +279,27 @@ void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
                 vector <int> newTour = myElem.tour;
                 newTour.push_back(v);
                 startQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
+            }
+        }
+    }
+}
+
+void send_BestTourCost(int rank) {
+    for(int i=0; i<num_processes; i++) {
+        if(i!=rank)
+            MPI_Send(&BestTourCost, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD);
+    }
+}
+
+void update_BestTour(int rank, vector <int> &BestTour) {
+    for(int i=0; i<num_processes; i++) {
+        if(i!=rank) {
+            double newBest;
+            MPI_Request request;
+            MPI_Irecv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &request);
+            if(newBest < BestTourCost) {
+                BestTourCost = newBest;
+                BestTour = {0};
             }
         }
     }
