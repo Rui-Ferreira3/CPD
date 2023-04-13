@@ -22,7 +22,7 @@ QueueElem recv_element(int tag, MPI_Datatype elem_type);
 void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins);
 void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue);
 void send_BestTourCost(int rank);
-void update_BestTour(int rank, vector <int> &BestTour);
+void update_BestTour(int rank, vector <int> &BestTour, MPI_Status &status, MPI_Request &request);
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank);
 vector<pair<double,double>> get_mins();
 double initialLB(vector<pair<double,double>> &mins);
