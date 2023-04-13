@@ -57,26 +57,27 @@ int main(int argc, char *argv[]) {
         for(int i=1; i<num_processes; i++) {
             for(int j=0; j<elementPerProcess; j++) {
                 send_element(i, j, startElems[(i-1)*elementPerProcess+j], elem_type);
-                printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
+                // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                 last = i*elementPerProcess;
             }
         }
 
         for(int h=last; h<startElems.size(); h++) {
             myQueue.push(startElems[h]);
-            printf("Rank: %d Node: %d\n", rank, startElems[h].node);
+            // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
         }
     }else {
         // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
             QueueElem myElem = recv_element(i, elem_type);
-            printf("Received node %d in process %d\n", myElem.node, rank);
+            // printf("Received node %d in process %d\n", myElem.node, rank);
             myQueue.push(myElem);
-            printf("Rank: %d Node: %d\n", rank, myElem.node);
+            // printf("Rank: %d Node: %d\n", rank, myElem.node);
         }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
+    myQueue.print(printQueueElem);
 
     // calculate tsp
     double start_time = MPI_Wtime();
