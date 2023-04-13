@@ -156,7 +156,7 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     int tour_size;
     MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     vector<int> received_tour(tour_size);
-    MPI_Recv(received_tour.data(), tour_size, MPI_INT, 0, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     myElem.tour = received_tour;
     return myElem;
 }
