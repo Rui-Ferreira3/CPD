@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
 
     int elementPerProcess = startElems.size()/num_processes+1;
-    PriorityQueue myQueue;
+    PriorityQueue<QueueElem> myQueue;
     if (rank == 0) {
         // send the array of QueueElem data to process 1
         // printf("Rank: %d Node: %d\n", rank, startElems[0].node);
