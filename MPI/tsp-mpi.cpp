@@ -29,8 +29,7 @@ int main(int argc, char *argv[]) {
         create_tasks(num_processes, startElems);
 
     // create an MPI data type for QueueElem
-    MPI_Datatype elem_type;
-    // elem_type = create_MPI_type();
+    MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
     if (num_processes > 1) {
@@ -144,7 +143,7 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
             int last;
             for(int i=1; i<num_processes; i++) {
                 for(int j=0; j<elementPerProcess; j++) {
-                    send_element(i, j, startElems.pop());
+                    send_element(i, j, startElems.pop(), elem_type);
                     last = i*elementPerProcess;
                 }
             }
@@ -153,7 +152,7 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
         myQueue = startElems;
     }else {
         for(int i=0; i<elementPerProcess; i++) {
-            QueueElem myElem = recv_element(0, i);
+            QueueElem myElem = recv_element(0, i, elem_type);
             myQueue.push(myElem);
         }
     }
@@ -171,7 +170,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int flag=5;
     while(flag != 0){
         if(num_processes > 1)
-            get_elements(myQueue, rank);
+            get_elements(myQueue, rank, elem_type);
 
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
@@ -200,7 +199,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 
         if(num_processes > 1) {
             if(cnt > NUM_ITERATIONS) {
-                redistribute_elements(myQueue, rank);
+                redistribute_elements(myQueue, rank, elem_type);
                 cnt = 0;
                 int size = myQueue.size();
                 MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
@@ -264,127 +263,127 @@ MPI_Datatype create_MPI_type() {
     return elem_type;
 }
 
+void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
+    MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
+    int tour_size = elem.tour.size();
+    MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
+    MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
+}
+
+QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
+    QueueElem myElem;
+    MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int tour_size;
+    MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    vector<int> received_tour(tour_size);
+    MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    myElem.tour = received_tour;
+    return myElem;
+}
+
 // void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
-//     MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
-//     int tour_size = elem.tour.size();
-//     MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-//     MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
+//     elem.tour.resize(numCities+1);
+//     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
+//     char buffer[size] = {};
+//     for(int i=0; i<numCities+1; i++) {
+//         memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
+//         pos += sizeof(int);
+//     }
+//     memcpy(&buffer[pos], &elem.cost, sizeof(double));
+//     pos += sizeof(double);
+//     memcpy(&buffer[pos], &elem.bound, sizeof(double));
+//     pos += sizeof(double);
+//     memcpy(&buffer[pos], &elem.length, sizeof(double));
+//     pos += sizeof(int);
+//     memcpy(&buffer[pos], &elem.node, sizeof(int));
+//     MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+//     // printf("Sent element:\n");
+//     // printQueueElem(elem);
 // }
 
 // QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
-//     QueueElem myElem;
-//     MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//     int tour_size;
-//     MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//     vector<int> received_tour(tour_size);
-//     MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//     myElem.tour = received_tour;
-//     return myElem;
+//     QueueElem elem;
+//     elem.tour.resize(numCities+1);
+//     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
+//     char buffer[size] = {};
+//     MPI_Recv(&buffer[0], size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//     for(int i=0; i<numCities+1; i++) {
+//         memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
+//         pos += sizeof(int);
+//     }
+//     memcpy(&elem.cost, &buffer[pos], sizeof(double));
+//     pos += sizeof(double);
+//     memcpy(&elem.bound, &buffer[pos], sizeof(double));
+//     pos += sizeof(double);
+//     memcpy(&elem.length, &buffer[pos], sizeof(double));
+//     pos += sizeof(int);
+//     memcpy(&elem.node, &buffer[pos], sizeof(int));
+//     // printf("Received element:\n");
+//     // printQueueElem(elem);
+//     elem.tour.resize(elem.length);
+//     return elem;
 // }
 
-void send_element(int dest, int tag, QueueElem elem) {
-    elem.tour.resize(numCities+1);
-    int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-    char buffer[size] = {};
-    for(int i=0; i<numCities+1; i++) {
-        memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
-        pos += sizeof(int);
-    }
-    memcpy(&buffer[pos], &elem.cost, sizeof(double));
-    pos += sizeof(double);
-    memcpy(&buffer[pos], &elem.bound, sizeof(double));
-    pos += sizeof(double);
-    memcpy(&buffer[pos], &elem.length, sizeof(double));
-    pos += sizeof(int);
-    memcpy(&buffer[pos], &elem.node, sizeof(int));
-    MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
-    // printf("Sent element:\n");
-    // printQueueElem(elem);
-}
-
-QueueElem recv_element(int source, int tag) {
-    QueueElem elem;
-    elem.tour.resize(numCities+1);
-    int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-    char buffer[size] = {};
-    MPI_Recv(&buffer[0], size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    for(int i=0; i<numCities+1; i++) {
-        memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
-        pos += sizeof(int);
-    }
-    memcpy(&elem.cost, &buffer[pos], sizeof(double));
-    pos += sizeof(double);
-    memcpy(&elem.bound, &buffer[pos], sizeof(double));
-    pos += sizeof(double);
-    memcpy(&elem.length, &buffer[pos], sizeof(double));
-    pos += sizeof(int);
-    memcpy(&elem.node, &buffer[pos], sizeof(int));
-    // printf("Received element:\n");
-    // printQueueElem(elem);
-    elem.tour.resize(elem.length);
-    return elem;
-}
-
-void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
-    int dest;
-    if (rank==0) {
-        dest = num_processes-1;
-    }else {
-        dest = rank-1;
-    }
-
-    if(myQueue.size() > NUM_SWAPS) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            send_element(dest, 2, myQueue.pop());
-        }
-    }
-}
-
-void get_elements(PriorityQueue<QueueElem> &myQueue, int rank) {
-    int source;
-    if (rank==num_processes-1) {
-        source = 0;
-    }else {
-        source = rank+1;
-    }
-
-    int flag;
-    while(1) {
-        MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-        if(flag) {
-            QueueElem newElem = recv_element(source, 2);
-            myQueue.push(newElem);
-        }else
-            break;
-    }
-}
-
 // void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+//     int dest;
+//     if (rank==0) {
+//         dest = num_processes-1;
+//     }else {
+//         dest = rank-1;
+//     }
+
 //     if(myQueue.size() > NUM_SWAPS) {
-//         for(int i; i<num_processes; i++) {
-//             // for(int i=0; i<NUM_SWAPS; i++) {
-//             if(i != rank)
-//                 send_element(i, 2, myQueue.pop(), elem_type);
-//             // }
+//         for(int i=0; i<NUM_SWAPS; i++) {
+//             send_element(dest, 2, myQueue.pop(), elem_type);
 //         }
 //     }
 // }
 
 // void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+//     int source;
+//     if (rank==num_processes-1) {
+//         source = 0;
+//     }else {
+//         source = rank+1;
+//     }
+
 //     int flag;
-//     for(int i=0; i<num_processes; i++) {
-//         if(i!= rank) {
-//             while(1) {
-//                 MPI_Iprobe(i, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-//                 if(flag) {
-//                     QueueElem newElem = recv_element(i, 2, elem_type);
-//                     myQueue.push(newElem);
-//                 }else
-//                     break;
-//             }
-//         }
+//     while(1) {
+//         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+//         if(flag) {
+//             QueueElem newElem = recv_element(source, 2, elem_type);
+//             myQueue.push(newElem);
+//             // printf("Process %d received:\n", rank);
+//             // printQueueElem(newElem);
+//         }else
+//             break;
 //     }
 // }
+
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+    if(myQueue.size() > NUM_SWAPS) {
+        for(int i; i<num_processes; i++) {
+            if(i != rank)
+                send_element(i, 2, myQueue.pop(), elem_type);
+        }
+    }
+}
+
+void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+    int flag;
+    for(int i=0; i<num_processes; i++) {
+        if(i!= rank) {
+            while(1) {
+                MPI_Iprobe(i, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                if(flag) {
+                    QueueElem newElem = recv_element(i, 2, elem_type);
+                    myQueue.push(newElem);
+                }else
+                    break;
+            }
+        }
+    }
+}
 
 void send_BestTourCost(int rank) {
     for(int i=0; i<num_processes; i++) {
