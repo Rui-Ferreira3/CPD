@@ -27,16 +27,7 @@ int main(int argc, char *argv[]) {
 
     
     // create an MPI data type for QueueElem
-    MPI_Datatype elem_type;
-    int lengths[] = {1, 1, 1, 1};
-    MPI_Aint displacements[] = {
-            offsetof(QueueElem, cost),
-            offsetof(QueueElem, bound),
-            offsetof(QueueElem, length),
-            offsetof(QueueElem, node)};
-    MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
-    MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
-    MPI_Type_commit(&elem_type);
+    MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
 
@@ -273,6 +264,20 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
             }
         }
     }
+}
+
+MPI_Datatype create_MPI_type() {
+    MPI_Datatype elem_type;
+    int lengths[] = {1, 1, 1, 1};
+    MPI_Aint displacements[] = {
+            offsetof(QueueElem, cost),
+            offsetof(QueueElem, bound),
+            offsetof(QueueElem, length),
+            offsetof(QueueElem, node)};
+    MPI_Datatype types[] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT, MPI_INT};
+    MPI_Type_create_struct(4, lengths, displacements, types, &elem_type);
+    MPI_Type_commit(&elem_type);
+    return elem_type;
 }
 
 void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {

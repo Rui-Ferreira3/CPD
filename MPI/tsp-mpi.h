@@ -20,6 +20,7 @@ void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue);
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
 void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins);
 
+MPI_Datatype create_MPI_type();
 void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
 QueueElem recv_element(int source, int tag, MPI_Datatype elem_type);
 
