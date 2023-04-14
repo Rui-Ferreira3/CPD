@@ -163,6 +163,8 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
 }
 
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+    double globalBestCost = BestTourCost;
+
     vector<pair<double,double>> mins = get_mins();
 
     vector <int> BestTour;
@@ -178,9 +180,9 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             QueueElem myElem = myQueue.pop();
 
             if(num_processes > 1)
-                update_BestTour(rank, BestTour);
+                globalBestCost = update_BestTour(rank, BestTour);
 
-            if(myElem.bound >= BestTourCost) {
+            if(myElem.bound >= BestTourCost || myElem.bound >= globalBestCost) {
                 myQueue.clear();
             }else {
                 if(myElem.length == numCities) {
@@ -316,7 +318,7 @@ void send_BestTourCost(int rank) {
     }
 }
 
-void update_BestTour(int rank, vector <int> &BestTour) {
+int update_BestTour(int rank, vector <int> &BestTour) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             int flag;
@@ -325,8 +327,9 @@ void update_BestTour(int rank, vector <int> &BestTour) {
                 double newBest = BestTourCost;
                 MPI_Recv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 if(newBest < BestTourCost) {
-                    BestTourCost = newBest;
-                    BestTour = {0};
+                    return newBest;
+                }else {
+                    return BestTourCost;
                 }
             }
         }
