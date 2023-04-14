@@ -294,6 +294,7 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
 QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     QueueElem elem;
     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
+    printf("Size: %d", size);
     char buffer[size] = {};
     MPI_Recv(&buffer, size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     printf("Received element: %.*s\n", size, buffer);
