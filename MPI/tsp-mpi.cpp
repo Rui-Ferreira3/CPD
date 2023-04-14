@@ -279,11 +279,13 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
-    if(myQueue.size() >= NUM_SWAPS) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            send_element(dest, 2, myQueue.pop(), elem_type);
-        }
-    }
+    // if(myQueue.size() > NUM_SWAPS) {
+    //     for(int i=0; i<NUM_SWAPS; i++) {
+    //         send_element(dest, 2, myQueue.pop(), elem_type);
+    //     }
+    // }
+    if(myQueue.size() > 1)
+        send_element(dest, 2, myQueue.pop(), elem_type);
 }
 
 void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
@@ -295,7 +297,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     }
 
     int flag;
-    for(int i=0; i<NUM_SWAPS; i++) {
+    // for(int i=0; i<NUM_SWAPS; i++) {
         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
         if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
@@ -303,7 +305,7 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
             // printf("Process %d received:\n", rank);
             // printQueueElem(newElem);
         }
-    }
+    // }
 }
 
 void send_BestTourCost(int rank) {
