@@ -14,7 +14,7 @@ using namespace std;
 #include "element.cpp"
 
 void parse_inputs(int argc, char *argv[]);
-void share_inputs();
+void share_inputs(int rank);
 void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue);
 
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);

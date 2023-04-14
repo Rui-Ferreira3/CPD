@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
         start_time = MPI_Wtime();
     }
 
-    share_inputs();
+    share_inputs(rank);
 
     PriorityQueue<QueueElem> startElems;
     if(rank == 0)
@@ -156,7 +156,7 @@ void parse_inputs(int argc, char *argv[]) {
     BestTourCost = atof(argv[2]);
 }
 
-void share_inputs() {
+void share_inputs(int rank) {
     if(num_processes > 1) {
         //MPI_Bcast sends the message from the root process to all other processes
         MPI_Bcast(&numCities, 1, MPI_INT, 0, MPI_COMM_WORLD);
