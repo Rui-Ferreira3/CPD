@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    // MPI_Barrier(MPI_COMM_WORLD);
 
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
