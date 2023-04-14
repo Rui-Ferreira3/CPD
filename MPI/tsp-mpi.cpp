@@ -314,6 +314,7 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     memcpy(&elem.node, &buffer[pos], sizeof(int));
     // printf("Received element:\n");
     // printQueueElem(elem);
+    elem.tour.resize(elem.length);
     return elem;
 }
 
