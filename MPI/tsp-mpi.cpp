@@ -263,66 +263,66 @@ MPI_Datatype create_MPI_type() {
     return elem_type;
 }
 
-void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
-    MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
-    int tour_size = elem.tour.size();
-    MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-    MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
-}
-
-QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
-    QueueElem myElem;
-    MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    int tour_size;
-    MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    vector<int> received_tour(tour_size);
-    MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    myElem.tour = received_tour;
-    return myElem;
-}
-
 // void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
-//     elem.tour.resize(numCities+1);
-//     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-//     char buffer[size] = {};
-//     for(int i=0; i<numCities+1; i++) {
-//         memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
-//         pos += sizeof(int);
-//     }
-//     memcpy(&buffer[pos], &elem.cost, sizeof(double));
-//     pos += sizeof(double);
-//     memcpy(&buffer[pos], &elem.bound, sizeof(double));
-//     pos += sizeof(double);
-//     memcpy(&buffer[pos], &elem.length, sizeof(double));
-//     pos += sizeof(int);
-//     memcpy(&buffer[pos], &elem.node, sizeof(int));
-//     MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
-//     // printf("Sent element:\n");
-//     // printQueueElem(elem);
+//     MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
+//     int tour_size = elem.tour.size();
+//     MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
+//     MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
 // }
 
 // QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
-//     QueueElem elem;
-//     elem.tour.resize(numCities+1);
-//     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-//     char buffer[size] = {};
-//     MPI_Recv(&buffer[0], size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-//     for(int i=0; i<numCities+1; i++) {
-//         memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
-//         pos += sizeof(int);
-//     }
-//     memcpy(&elem.cost, &buffer[pos], sizeof(double));
-//     pos += sizeof(double);
-//     memcpy(&elem.bound, &buffer[pos], sizeof(double));
-//     pos += sizeof(double);
-//     memcpy(&elem.length, &buffer[pos], sizeof(double));
-//     pos += sizeof(int);
-//     memcpy(&elem.node, &buffer[pos], sizeof(int));
-//     // printf("Received element:\n");
-//     // printQueueElem(elem);
-//     elem.tour.resize(elem.length);
-//     return elem;
+//     QueueElem myElem;
+//     MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//     int tour_size;
+//     MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//     vector<int> received_tour(tour_size);
+//     MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+//     myElem.tour = received_tour;
+//     return myElem;
 // }
+
+void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
+    elem.tour.resize(numCities+1);
+    int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
+    char buffer[size] = {};
+    for(int i=0; i<numCities+1; i++) {
+        memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
+        pos += sizeof(int);
+    }
+    memcpy(&buffer[pos], &elem.cost, sizeof(double));
+    pos += sizeof(double);
+    memcpy(&buffer[pos], &elem.bound, sizeof(double));
+    pos += sizeof(double);
+    memcpy(&buffer[pos], &elem.length, sizeof(double));
+    pos += sizeof(int);
+    memcpy(&buffer[pos], &elem.node, sizeof(int));
+    MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+    // printf("Sent element:\n");
+    // printQueueElem(elem);
+}
+
+QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
+    QueueElem elem;
+    elem.tour.resize(numCities+1);
+    int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
+    char buffer[size] = {};
+    MPI_Recv(&buffer[0], size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    for(int i=0; i<numCities+1; i++) {
+        memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
+        pos += sizeof(int);
+    }
+    memcpy(&elem.cost, &buffer[pos], sizeof(double));
+    pos += sizeof(double);
+    memcpy(&elem.bound, &buffer[pos], sizeof(double));
+    pos += sizeof(double);
+    memcpy(&elem.length, &buffer[pos], sizeof(double));
+    pos += sizeof(int);
+    memcpy(&elem.node, &buffer[pos], sizeof(int));
+    // printf("Received element:\n");
+    // printQueueElem(elem);
+    elem.tour.resize(elem.length);
+    return elem;
+}
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     int dest;
@@ -353,8 +353,6 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
         if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
-            // printf("Process %d received:\n", rank);
-            // printQueueElem(newElem);
         }else
             break;
     }
