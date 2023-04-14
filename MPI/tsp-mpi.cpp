@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     if(rank == 0) {
         end_time = MPI_Wtime();
 
-        fprintf(stderr, "%fs\n", end_time-start_time);
+        fprintf(stderr, "%.1fs\n", end_time-start_time);
 
         print_result(best.first, best.second);
     }
@@ -184,8 +184,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
-            if(num_processes > 1)
-                globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
+            // if(num_processes > 1)
+            //     globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
 
             if(myElem.bound >= BestTourCost || myElem.bound >= globalBestCost) {
                 myQueue.clear();
@@ -213,8 +213,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             //         cnt++;
             // }
             // printf("Iteration %d of rank %d\n", cnt, rank);
-            if(num_processes > 1)
-                redistribute_elements(myQueue, rank, elem_type);
+            // if(num_processes > 1)
+            //     redistribute_elements(myQueue, rank, elem_type);
 
         }
         
