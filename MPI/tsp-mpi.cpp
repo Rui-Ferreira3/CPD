@@ -99,11 +99,14 @@ int main(int argc, char *argv[]) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost == results.second) {
+            for(int i=0; i<numCities+1; i++) {
+                cout << results.first[i] << " ";
+            }
+            cout << endl;
             if (rank == 0) {
                 bestTour = results.first;
             }else {
                 MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 123, MPI_COMM_WORLD);
-
             }
         }
 
