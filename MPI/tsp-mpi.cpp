@@ -28,13 +28,16 @@ int main(int argc, char *argv[]) {
     if(rank == 0)
         create_tasks(num_processes, startElems);
 
+    end_time = MPI_Wtime();
+    fprintf(stderr, "%.1fs\n", end_time-start_time);
+
     // create an MPI data type for QueueElem
     MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
-    // if (num_processes > 1) {
-    //     MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    // }
+    if (num_processes > 1) {
+        MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    }
 
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
