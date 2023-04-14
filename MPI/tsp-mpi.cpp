@@ -167,8 +167,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=5;
     while(flag != 0){
-        // if(num_processes > 1)
-        //     get_elements(myQueue, rank, elem_type);
+        if(num_processes > 1)
+            get_elements(myQueue, rank, elem_type);
 
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
@@ -202,8 +202,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             //         cnt++;
             // }
             // printf("Iteration %d of rank %d\n", cnt, rank);
-            // if(num_processes > 1)
-            //     redistribute_elements(myQueue, rank, elem_type);
+            if(num_processes > 1)
+                redistribute_elements(myQueue, rank, elem_type);
 
         }
         
