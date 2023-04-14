@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
             if (rank == 0) {
                 bestTour = results.first;
             }else
-                MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
+                MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 123, MPI_COMM_WORLD);
         }
 
         double costs[num_processes];
