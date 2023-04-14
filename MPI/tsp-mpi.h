@@ -23,14 +23,18 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins);
 
 MPI_Datatype create_MPI_type();
-void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
-QueueElem recv_element(int source, int tag, MPI_Datatype elem_type);
+void send_element(int dest, int tag, QueueElem elem);
+QueueElem recv_element(int source, int tag);
+// void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
+// QueueElem recv_element(int source, int tag, MPI_Datatype elem_type);
 
 void send_BestTourCost(int rank);
 double update_BestTour(int rank, vector <int> &BestTour, double globalBestCost);
 
-void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
-void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank);
+void get_elements(PriorityQueue<QueueElem> &myQueue, int rank);
+// void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
+// void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
 
 vector<pair<double,double>> get_mins();
 double initialLB(vector<pair<double,double>> &mins);
