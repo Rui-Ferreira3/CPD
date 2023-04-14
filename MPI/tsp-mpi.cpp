@@ -39,10 +39,10 @@ int main(int argc, char *argv[]) {
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
 
+    pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
+
     end_time = MPI_Wtime();
     fprintf(stderr, "%.1fs\n", end_time-start_time);
-
-    pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
     pair<vector <int>, double> best = get_results(rank, results);
 
