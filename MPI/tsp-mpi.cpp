@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     if (num_processes > 1) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
-        if(bestCost == results.second) {
+        if(bestCost==results.second && results.first.size()==numCities+1) {
             printf("Best rank: %d\n", rank);
             if (rank == 0) {
                 bestTour = results.first;
