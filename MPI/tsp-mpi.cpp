@@ -277,7 +277,7 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
     char buffer[size];
     for(int i=0; i<numCities+1; i++) {
-        memcpy(&buffer[pos], elem.tour[i], sizeof(int));
+        memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
         pos += sizeof(int);
     }
     memcpy(&buffer[pos], &elem.cost, sizeof(double));
@@ -298,7 +298,7 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     char buffer[size];
     MPI_Recv(&buffer, size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     for(int i=0; i<numCities+1; i++) {
-        memcpy(elem.tour[i], &buffer[pos], sizeof(int));
+        memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
         pos += sizeof(int);
     }
     memcpy(&elem.cost, &buffer[pos], sizeof(double));
