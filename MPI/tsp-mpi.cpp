@@ -198,14 +198,16 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                     create_children(myElem, myQueue, mins);
             }
 
-            if(num_processes > 1) {
-                if(cnt > NUM_ITERATIONS) {
-                    redistribute_elements(myQueue, rank, elem_type);
-                    cnt = 0;
-                }else
-                    cnt++;
-            }
+            // if(num_processes > 1) {
+            //     if(cnt > NUM_ITERATIONS) {
+            //         redistribute_elements(myQueue, rank, elem_type);
+            //         cnt = 0;
+            //     }else
+            //         cnt++;
+            // }
             // printf("Iteration %d of rank %d\n", cnt, rank);
+            redistribute_elements(myQueue, rank, elem_type);
+
         }
         
         int size = myQueue.size();
@@ -276,7 +278,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
-    if(myQueue.size() >= NUM_ITERATIONS) {
+    if(myQueue.size() >= NUM_SWAPS) {
         for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
         }
