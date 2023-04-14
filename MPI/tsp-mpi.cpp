@@ -237,7 +237,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=5;
     while(flag != 0){
-        printf("Total number of elements in queues is %d\n", flag);
         if(num_processes > 1)
             get_elements(myQueue, rank, elem_type);
 
