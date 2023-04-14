@@ -92,8 +92,8 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    double bestCost;
     vector<int> bestTour(numCities+1);
+    double bestCost;
     int bestRank;
     if (num_processes > 1) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
@@ -105,15 +105,17 @@ int main(int argc, char *argv[]) {
                 MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
         }
 
-        double costs[num_processes];
-        MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        for(int i=0; i<num_processes; i++) {
-            if(costs[i] == bestCost)
-                bestRank = i;
-        }
+        if(rank == 0) {
+            double costs[num_processes];
+            MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            for(int i=0; i<num_processes; i++) {
+                if(costs[i] == bestCost)
+                    bestRank = i;
+            }
 
-        if(rank == 0 && bestRank != 0)
-            MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if(bestRank != 0)
+                MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
     }else {
         bestTour = results.first;
         bestCost = results.second;
@@ -126,7 +128,6 @@ int main(int argc, char *argv[]) {
 
         print_result(bestTour, bestCost);
     }
-    printf("Rank %d\n", rank);
 
     MPI_Finalize();
     return 0;
