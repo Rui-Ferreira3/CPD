@@ -4,8 +4,8 @@
 #  -g     - this flag adds debugging information to the executable file
 #  -Wall  - this flag is used to turn on most compiler warnings
 NUM_PROCESSES = 2
-FILE = gen20-5000.in
-VAL = 5000
+FILE = gen22-25000.in
+VAL = 25000
 # The build target
 all: tsp-mpi tsp-mpi.o
 

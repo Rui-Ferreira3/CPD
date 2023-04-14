@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
 
         print_result(best.first, best.second);
     }
-    // printf("Process %d finished\n", rank);
 
     MPI_Finalize();
     return 0;
@@ -211,8 +210,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             }
         }
     }
-
-    printf("Rank: %d\n", rank);
 
     return make_pair(BestTour, BestTourCost);
 }
