@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    vector<int> bestTour(numCities+1);
+    vector<int> bestTour;
     double bestCost;
     int bestRank;
     if (num_processes > 1) {
@@ -101,8 +101,10 @@ int main(int argc, char *argv[]) {
         if(bestCost == results.second) {
             if (rank == 0) {
                 bestTour = results.first;
-            }else
+            }else {
                 MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 123, MPI_COMM_WORLD);
+
+            }
         }
 
         double costs[num_processes];
