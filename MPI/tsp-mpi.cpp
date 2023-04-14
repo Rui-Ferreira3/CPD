@@ -317,7 +317,7 @@ void send_BestTourCost(int rank) {
     }
 }
 
-int update_BestTour(int rank, vector <int> &BestTour) {
+double update_BestTour(int rank, vector <int> &BestTour) {
     for(int i=0; i<num_processes; i++) {
         if(i!=rank) {
             int flag;

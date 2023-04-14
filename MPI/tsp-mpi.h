@@ -26,7 +26,7 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type);
 QueueElem recv_element(int source, int tag, MPI_Datatype elem_type);
 
 void send_BestTourCost(int rank);
-int update_BestTour(int rank, vector <int> &BestTour);
+double update_BestTour(int rank, vector <int> &BestTour);
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
 void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
