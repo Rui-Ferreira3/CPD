@@ -6,8 +6,6 @@
 int main(int argc, char *argv[]) {
     double exec_time;
     double start_time, end_time;
-
-    // omp_set_num_threads(2);
     
     int rank;
     MPI_Init(&argc, &argv);
@@ -40,6 +38,8 @@ int main(int argc, char *argv[]) {
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
 
     // MPI_Barrier(MPI_COMM_WORLD);
+
+    printf("Rank: %d\n", rank);
 
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
@@ -289,7 +289,7 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     memcpy(&buffer[pos], &elem.node, sizeof(int));
     MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
     // printf("Sent element:\n");
-    printQueueElem(elem);
+    // printQueueElem(elem);
 }
 
 QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
