@@ -324,39 +324,66 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
 //     return elem;
 // }
 
-void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
-    int dest;
-    if (rank==0) {
-        dest = num_processes-1;
-    }else {
-        dest = rank-1;
-    }
+// void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+//     int dest;
+//     if (rank==0) {
+//         dest = num_processes-1;
+//     }else {
+//         dest = rank-1;
+//     }
 
+//     if(myQueue.size() > NUM_SWAPS) {
+//         for(int i=0; i<NUM_SWAPS; i++) {
+//             send_element(dest, 2, myQueue.pop(), elem_type);
+//         }
+//     }
+// }
+
+// void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+//     int source;
+//     if (rank==num_processes-1) {
+//         source = 0;
+//     }else {
+//         source = rank+1;
+//     }
+
+//     int flag;
+//     while(1) {
+//         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+//         if(flag) {
+//             QueueElem newElem = recv_element(source, 2, elem_type);
+//             myQueue.push(newElem);
+//             // printf("Process %d received:\n", rank);
+//             // printQueueElem(newElem);
+//         }else
+//             break;
+//     }
+// }
+
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     if(myQueue.size() > NUM_SWAPS) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            send_element(dest, 2, myQueue.pop(), elem_type);
+        for(int i; i<num_processes) {
+            // for(int i=0; i<NUM_SWAPS; i++) {
+            if(i != rank)
+                send_element(i, 2, myQueue.pop(), elem_type);
+            // }
         }
     }
 }
 
 void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
-    int source;
-    if (rank==num_processes-1) {
-        source = 0;
-    }else {
-        source = rank+1;
-    }
-
     int flag;
-    while(1) {
-        MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
-        if(flag) {
-            QueueElem newElem = recv_element(source, 2, elem_type);
-            myQueue.push(newElem);
-            // printf("Process %d received:\n", rank);
-            // printQueueElem(newElem);
-        }else
-            break;
+    for(int i=0; i<num_processes; i++) {
+        if(i!= rank) {
+            while(1) {
+                MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                if(flag) {
+                    QueueElem newElem = recv_element(source, 2, elem_type);
+                    myQueue.push(newElem);
+                }else
+                    break;
+            }
+        }
     }
 }
 
