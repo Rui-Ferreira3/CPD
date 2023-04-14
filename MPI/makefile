@@ -15,7 +15,7 @@ libs.o: element.cpp queue.hpp
 tsp-mpi.o: tsp-mpi.cpp tsp-mpi.h
 	mpic++ -c -O3 -fopenmp tsp-mpi.cpp
 
-tsp-mpi: tsp-mpi.o
+tsp-mpi: tsp-mpi.o libs.o
 	mpic++ -g -Wall -O3 -o tsp-mpi -fopenmp tsp-mpi.o libs.o
 
 clean:
