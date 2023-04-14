@@ -205,7 +205,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }else
                     cnt++;
             }
-            printf("Iteration %d of rank %d\n", cnt, rank);
+            // printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
         int size = myQueue.size();
