@@ -96,7 +96,8 @@ int main(int argc, char *argv[]) {
     double bestCost;
     int bestRank;
     if (num_processes > 1) {
-        MPI_Allreduce(&bestCost, &results.second, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+        printf("Cost: %f\n", results.second);
+        MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost == results.second) {
             printf("Best rank: %d\n", rank);
