@@ -13,10 +13,11 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 
-        if(parse_inputs(argc, argv) == -1) {
-            MPI_Finalize();
-            exit(-1);
-        }
+    if(parse_inputs(argc, argv) == -1) {
+        MPI_Finalize();
+        exit(-1);
+    }
+    
     if(rank == 0) {
         start_time = MPI_Wtime();
     }
