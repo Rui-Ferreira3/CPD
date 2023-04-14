@@ -237,6 +237,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=5;
     while(flag != 0){
+        printf("Total number of elements in queues is %d\n", flag);
         if(num_processes > 1)
             get_elements(myQueue, rank, elem_type);
 
@@ -274,11 +275,13 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         }
         
         int size = myQueue.size();
-        MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Alleduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        // MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+        // MPI_Bcast(&flag, 1, MPI_INT, 0, MPI_COMM_WORLD);
         // printf("Total number of elements in queues is %d\n", flag);
     }
 
-    printf("Got here!");
+    printf("Got here!\n");
 
     return make_pair(BestTour, BestTourCost);
 }
