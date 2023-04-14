@@ -37,11 +37,6 @@ int main(int argc, char *argv[]) {
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
 
-    // MPI_Barrier(MPI_COMM_WORLD);
-
-    printf("Rank: %d\n", rank);
-
-    // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
     pair<vector <int>, double> best = get_results(rank, results);
@@ -214,7 +209,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-        // printf("Total number of elements in queues is %d\n", flag);
+        printf("Total number of elements in queues is %d\n", flag);
     }
 
     return make_pair(BestTour, BestTourCost);
