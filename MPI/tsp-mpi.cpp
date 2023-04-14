@@ -389,9 +389,7 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost==results.second && results.first.size()==numCities+1) {
-            if (rank == 0) {
-                bestTour = results.first;
-            }else {
+            if (rank != 0) {
                 MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
             }
         }
@@ -409,7 +407,8 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
 
             if(bestRank != 0) {
                 MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            }
+            } else
+                bestTour = results.first;
         }
     }else {
         bestTour = results.first;
