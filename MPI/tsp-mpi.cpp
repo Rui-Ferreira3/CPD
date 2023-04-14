@@ -310,6 +310,7 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     memcpy(&elem.node, &buffer[pos], sizeof(int));
     printf("Received element:");
     printQueueElem(elem);
+    return elem;
 }
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
