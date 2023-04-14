@@ -94,22 +94,26 @@ int main(int argc, char *argv[]) {
 
     double bestCost;
     vector<int> bestTour(numCities+1);
+    int bestRank;
     if (num_processes > 1) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-        
-        double cost = results.second;
-        if(results.first.size() < numCities+1)
-            cost = 1000000;
+
+        if(bestCost == results.second) {
+            if (rank == 0) {
+                bestTour = results.first;
+            }else
+                MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
+        }
 
         double costs[num_processes];
-        if (num_processes > 1)
-            MPI_Gather(&bestCost, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        for(int i=0) {
+            if(costs[i] == bestCost)
+                bestRank = i;
+        }
 
-        if(bestCost == results.second)
-            MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
-
-        if(rank == 0)
-            MPI_Recv(bestTour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if(rank == 0 && bestRank != 0)
+            MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }else {
         bestTour = results.first;
         bestCost = results.second;
@@ -120,7 +124,7 @@ int main(int argc, char *argv[]) {
 
         fprintf(stderr, "%fs\n", end_time-start_time);
 
-        print_result(best_tour, min_cost);
+        print_result(bestTour, bestCost);
     }
     printf("Rank %d\n", rank);
 
