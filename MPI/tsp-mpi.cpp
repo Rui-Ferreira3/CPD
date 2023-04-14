@@ -6,8 +6,6 @@
 int main(int argc, char *argv[]) {
     double exec_time;
     double start_time, end_time;
-
-    // omp_set_num_threads(2);
     
     int rank;
     MPI_Init(&argc, &argv);
@@ -25,7 +23,6 @@ int main(int argc, char *argv[]) {
     if(rank == 0)
         create_tasks(num_processes, startElems);
 
-    // create an MPI data type for QueueElem
     MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
@@ -38,7 +35,6 @@ int main(int argc, char *argv[]) {
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
     pair<vector <int>, double> best = get_results(rank, results);
