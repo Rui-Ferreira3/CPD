@@ -362,7 +362,7 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
 
 void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     if(myQueue.size() > NUM_SWAPS) {
-        for(int i; i<num_processes) {
+        for(int i; i<num_processes; i++) {
             // for(int i=0; i<NUM_SWAPS; i++) {
             if(i != rank)
                 send_element(i, 2, myQueue.pop(), elem_type);
