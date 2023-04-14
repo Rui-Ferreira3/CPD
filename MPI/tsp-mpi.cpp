@@ -19,27 +19,11 @@ int main(int argc, char *argv[]) {
         start_time = MPI_Wtime();
     }
 
-    if(num_processes > 1) {
-        //MPI_Bcast sends the message from the root process to all other processes
-        MPI_Bcast(&numCities, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(&numRoads, 1, MPI_INT, 0, MPI_COMM_WORLD);
-        MPI_Bcast(&BestTourCost, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-        if(rank != 0) {
-            distances.resize(numCities);
-            for(int i=0; i<numCities; i++) {
-                distances[i].resize(numCities);
-            }
-        }
-
-        for(int i=0; i<numCities; i++) {
-            MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        }
-    }
+    share_inputs();
 
     PriorityQueue<QueueElem> startElems;
     if(rank == 0)
-        split_work(num_processes, startElems);
+        create_tasks(num_processes, startElems);
 
     
     // create an MPI data type for QueueElem
@@ -138,24 +122,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
-    MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
-    int tour_size = elem.tour.size();
-    MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
-    MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
-}
-
-QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
-    QueueElem myElem;
-    MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    int tour_size;
-    MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    vector<int> received_tour(tour_size);
-    MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    myElem.tour = received_tour;
-    return myElem;
-}
-
 void parse_inputs(int argc, char *argv[]) {
     string line;
     ifstream myfile (argv[1]);
@@ -190,34 +156,46 @@ void parse_inputs(int argc, char *argv[]) {
     BestTourCost = atof(argv[2]);
 }
 
-void print_result(vector <int> BestTour, double BestCost) {
-    if(BestTour.size() != numCities+1) {
-        cout << "NO SOLUTION" << endl;
-    } else {
-        cout.precision(1);
-        cout << fixed << BestCost << endl;
-        for(int i=0; i<numCities+1; i++) {
-            cout << BestTour[i] << " ";
+void share_inputs() {
+    if(num_processes > 1) {
+        //MPI_Bcast sends the message from the root process to all other processes
+        MPI_Bcast(&numCities, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&numRoads, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&BestTourCost, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+        if(rank != 0) {
+            distances.resize(numCities);
+            for(int i=0; i<numCities; i++) {
+                distances[i].resize(numCities);
+            }
         }
-        cout << endl;
+
+        for(int i=0; i<numCities; i++) {
+            MPI_Bcast(&distances[i][0], numCities, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        }
     }
 }
 
-void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins) {
-    bool visitedCities[numCities] = {false};
+void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue) {
+    vector<pair<double,double>> mins = get_mins();
 
-    for (int city : myElem.tour) {
-        visitedCities[city] = true;
-    }
+    startQueue.push({{0}, 0.0, initialLB(mins), 1, 0});
 
-    for(int v=0; v<numCities; v++) {
-        double dist = distances[myElem.node][v];
-        if(dist>0 && !visitedCities[v]) {
-            double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
-            if(newBound <= BestTourCost) {
+    while(startQueue.size() < num_processes) {
+        QueueElem myElem = startQueue.pop();
+
+        bool visitedCities[numCities] = {false};
+        for (int city : myElem.tour) {
+            visitedCities[city] = true;
+        }
+
+        for(int v=0; v<numCities; v++) {
+            double dist = distances[myElem.node][v];
+            if(dist>0 && !visitedCities[v]) {
+                double newBound = calculateLB(mins, myElem.node, v, myElem.bound);
                 vector <int> newTour = myElem.tour;
                 newTour.push_back(v);
-                myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
+                startQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
         }
     }
@@ -277,6 +255,59 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     return make_pair(BestTour, BestTourCost);
 }
 
+void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins) {
+    bool visitedCities[numCities] = {false};
+
+    for (int city : myElem.tour) {
+        visitedCities[city] = true;
+    }
+
+    for(int v=0; v<numCities; v++) {
+        double dist = distances[myElem.node][v];
+        if(dist>0 && !visitedCities[v]) {
+            double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
+            if(newBound <= BestTourCost) {
+                vector <int> newTour = myElem.tour;
+                newTour.push_back(v);
+                myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
+            }
+        }
+    }
+}
+
+void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
+    MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
+    int tour_size = elem.tour.size();
+    MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
+    MPI_Send(elem.tour.data(), elem.tour.size(), MPI_INT, dest, tag, MPI_COMM_WORLD);
+}
+
+QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
+    QueueElem myElem;
+    MPI_Recv(&myElem, 1, elem_type, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int tour_size;
+    MPI_Recv(&tour_size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    vector<int> received_tour(tour_size);
+    MPI_Recv(received_tour.data(), tour_size, MPI_INT, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    myElem.tour = received_tour;
+    return myElem;
+}
+
+void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
+    int dest;
+    if (rank==0) {
+        dest = num_processes-1;
+    }else {
+        dest = rank-1;
+    }
+
+    if(myQueue.size() >= NUM_ITERATIONS) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            send_element(dest, 2, myQueue.pop(), elem_type);
+        }
+    }
+}
+
 void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
     int source;
     if (rank==num_processes-1) {
@@ -291,31 +322,6 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
         if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
-        }
-    }
-}
-
-void split_work(int num_processes, PriorityQueue<QueueElem> &startQueue) {
-    vector<pair<double,double>> mins = get_mins();
-
-    startQueue.push({{0}, 0.0, initialLB(mins), 1, 0});
-
-    while(startQueue.size() < num_processes) {
-        QueueElem myElem = startQueue.pop();
-
-        bool visitedCities[numCities] = {false};
-        for (int city : myElem.tour) {
-            visitedCities[city] = true;
-        }
-
-        for(int v=0; v<numCities; v++) {
-            double dist = distances[myElem.node][v];
-            if(dist>0 && !visitedCities[v]) {
-                double newBound = calculateLB(mins, myElem.node, v, myElem.bound);
-                vector <int> newTour = myElem.tour;
-                newTour.push_back(v);
-                startQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
-            }
         }
     }
 }
@@ -341,21 +347,6 @@ void update_BestTour(int rank, vector <int> &BestTour) {
                     BestTour = {0};
                 }
             }
-        }
-    }
-}
-
-void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
-    int dest;
-    if (rank==0) {
-        dest = num_processes-1;
-    }else {
-        dest = rank-1;
-    }
-
-    if(myQueue.size() >= NUM_ITERATIONS) {
-        for(int i=0; i<NUM_SWAPS; i++) {
-            send_element(dest, 2, myQueue.pop(), elem_type);
         }
     }
 }
@@ -411,4 +402,17 @@ double calculateLB(vector<pair<double,double>> &mins, int f, int t, double LB) {
         ct = mins[t].first;
 
     return LB + directCost - (cf+ct)/2;
+}
+
+void print_result(vector <int> BestTour, double BestCost) {
+    if(BestTour.size() != numCities+1) {
+        cout << "NO SOLUTION" << endl;
+    } else {
+        cout.precision(1);
+        cout << fixed << BestCost << endl;
+        for(int i=0; i<numCities+1; i++) {
+            cout << BestTour[i] << " ";
+        }
+        cout << endl;
+    }
 }
