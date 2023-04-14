@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
             }else
                 MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
         }
-        
+
         double costs[num_processes];
         MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             
@@ -189,6 +189,12 @@ void parse_inputs(int argc, char *argv[]) {
 void print_result(vector <int> BestTour, double BestTourCost) {
     if(BestTour.size() != numCities+1) {
         cout << "NO SOLUTION" << endl;
+        cout.precision(1);
+        cout << fixed << BestTourCost << endl;
+        for(int i=0; i<numCities+1; i++) {
+            cout << BestTour[i] << " ";
+        }
+        cout << endl;
     } else {
         cout.precision(1);
         cout << fixed << BestTourCost << endl;
