@@ -99,10 +99,6 @@ int main(int argc, char *argv[]) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost == results.second) {
-            for(int i=0; i<numCities+1; i++) {
-                cout << results.first[i] << " ";
-            }
-            cout << endl;
             if (rank == 0) {
                 bestTour = results.first;
             }else {
@@ -119,8 +115,14 @@ int main(int argc, char *argv[]) {
                     bestRank = i;
             }
 
-            if(bestRank != 0)
+            if(bestRank != 0) {
                 MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                
+                for(int i=0; i<numCities+1; i++) {
+                    cout << bestTour[i] << " ";
+                }
+                cout << endl;
+            }
         }
     }else {
         bestTour = results.first;
@@ -194,12 +196,6 @@ void parse_inputs(int argc, char *argv[]) {
 void print_result(vector <int> BestTour, double BestTourCost) {
     if(BestTour.size() != numCities+1) {
         cout << "NO SOLUTION" << endl;
-        cout.precision(1);
-        cout << fixed << BestTourCost << endl;
-        for(int i=0; i<numCities+1; i++) {
-            cout << BestTour[i] << " ";
-        }
-        cout << endl;
     } else {
         cout.precision(1);
         cout << fixed << BestTourCost << endl;
