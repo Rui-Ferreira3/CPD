@@ -376,9 +376,9 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     for(int i=0; i<num_processes; i++) {
         if(i!= rank) {
             while(1) {
-                MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                MPI_Iprobe(i, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
                 if(flag) {
-                    QueueElem newElem = recv_element(source, 2, elem_type);
+                    QueueElem newElem = recv_element(i, 2, elem_type);
                     myQueue.push(newElem);
                 }else
                     break;
