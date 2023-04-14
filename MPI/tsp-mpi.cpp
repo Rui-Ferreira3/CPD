@@ -28,9 +28,6 @@ int main(int argc, char *argv[]) {
     if(rank == 0)
         create_tasks(num_processes, startElems);
 
-    end_time = MPI_Wtime();
-    fprintf(stderr, "%.1fs\n", end_time-start_time);
-
     // create an MPI data type for QueueElem
     MPI_Datatype elem_type = create_MPI_type();
 
@@ -41,6 +38,9 @@ int main(int argc, char *argv[]) {
 
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
+
+    end_time = MPI_Wtime();
+    fprintf(stderr, "%.1fs\n", end_time-start_time);
 
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
