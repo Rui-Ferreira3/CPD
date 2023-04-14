@@ -30,76 +30,20 @@ int main(int argc, char *argv[]) {
     MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
-
     if (num_processes > 1) {
         MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
-    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
-    PriorityQueue<QueueElem> myQueue;
-    if (rank == 0) {
-        if (num_processes > 1) {
-            // send the array of QueueElem data to process 1
-            int last;
-            for(int i=1; i<num_processes; i++) {
-                for(int j=0; j<elementPerProcess; j++) {
-                    send_element(i, j, startElems.pop(), elem_type);
-                    // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
-                    last = i*elementPerProcess;
-                }
-            }
-        }
 
-        myQueue = startElems;
-        // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
-    }else {
-        // receive the array of QueueElem data from process 0
-        for(int i=0; i<elementPerProcess; i++) {
-            QueueElem myElem = recv_element(0, i, elem_type);
-            // printf("Received node %d in process %d\n", myElem.node, rank);
-            myQueue.push(myElem);
-            // printf("Rank: %d Node: %d\n", rank, myElem.node);
-        }
-    }
+    PriorityQueue<QueueElem> myQueue;
+    split_tasks(startElems, myQueue, elem_type, elementPerProcess);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    vector<int> bestTour(numCities+1);
-    double bestCost;
-    int bestRank;
-    if (num_processes > 1) {
-        MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-
-        if(bestCost==results.second && results.first.size()==numCities+1) {
-            printf("Best rank: %d\n", rank);
-            if (rank == 0) {
-                bestTour = results.first;
-            }else {
-                MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-            }
-        }
-
-        double costs[num_processes];
-        MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            
-        if(rank == 0) {
-            for(int i=0; i<num_processes; i++) {
-                if(costs[i] == bestCost) {
-                    bestRank = i;
-                }
-            }
-
-            if(bestRank != 0) {
-                MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            }
-        }
-    }else {
-        bestTour = results.first;
-        bestCost = results.second;
-    }
+    pair<vector <int>, double> best = get_results(rank, results);
 
     if(rank == 0) {
         end_time = MPI_Wtime();
@@ -188,6 +132,34 @@ void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue) {
                 newTour.push_back(v);
                 startQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
+        }
+    }
+}
+
+void split_tasks(PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess) {
+    QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
+    if (rank == 0) {
+        if (num_processes > 1) {
+            // send the array of QueueElem data to process 1
+            int last;
+            for(int i=1; i<num_processes; i++) {
+                for(int j=0; j<elementPerProcess; j++) {
+                    send_element(i, j, startElems.pop(), elem_type);
+                    // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
+                    last = i*elementPerProcess;
+                }
+            }
+        }
+
+        myQueue = startElems;
+        // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
+    }else {
+        // receive the array of QueueElem data from process 0
+        for(int i=0; i<elementPerProcess; i++) {
+            QueueElem myElem = recv_element(0, i, elem_type);
+            // printf("Received node %d in process %d\n", myElem.node, rank);
+            myQueue.push(myElem);
+            // printf("Rank: %d Node: %d\n", rank, myElem.node);
         }
     }
 }
@@ -407,6 +379,44 @@ double calculateLB(vector<pair<double,double>> &mins, int f, int t, double LB) {
         ct = mins[t].first;
 
     return LB + directCost - (cf+ct)/2;
+}
+
+pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> results) {
+    vector<int> bestTour(numCities+1);
+    double bestCost;
+    int bestRank;
+    if (num_processes > 1) {
+        MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+
+        if(bestCost==results.second && results.first.size()==numCities+1) {
+            printf("Best rank: %d\n", rank);
+            if (rank == 0) {
+                bestTour = results.first;
+            }else {
+                MPI_Send(results.first.data(), numCities+1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+            }
+        }
+
+        double costs[num_processes];
+        MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            
+        if(rank == 0) {
+            for(int i=0; i<num_processes; i++) {
+                if(costs[i] == bestCost) {
+                    bestRank = i;
+                }
+            }
+
+            if(bestRank != 0) {
+                MPI_Recv(bestTour.data(), numCities+1, MPI_INT, bestRank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+        }
+    }else {
+        bestTour = results.first;
+        bestCost = results.second;
+    }
+    
+    return make_pair(bestTour, bestCost);
 }
 
 void print_result(vector <int> BestTour, double BestCost) {
