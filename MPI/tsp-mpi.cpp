@@ -92,8 +92,7 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    vector<int> bestTour;
-    bestTour.resize(numCities+1);
+    vector<int> bestTour(numCities+1);
     double bestCost;
     int bestRank;
     if (num_processes > 1) {
