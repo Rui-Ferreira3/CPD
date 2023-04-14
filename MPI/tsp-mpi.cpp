@@ -333,9 +333,9 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
     }
 
     if(myQueue.size() > NUM_SWAPS) {
-        // for(int i=0; i<NUM_SWAPS; i++) {
+        for(int i=0; i<NUM_SWAPS; i++) {
             send_element(dest, 2, myQueue.pop(), elem_type);
-        // }
+        }
     }
 }
 
