@@ -93,43 +93,29 @@ int main(int argc, char *argv[]) {
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
     double bestCost;
-    MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-    
-    double cost = results.second;
-    if(results.first.size() < numCities+1)
-        cost = 1000000;
+    vector<int> bestTour(numCities+1);
+    if (num_processes > 1) {
+        MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+        
+        double cost = results.second;
+        if(results.first.size() < numCities+1)
+            cost = 1000000;
 
-    double costs[num_processes];
-    if (num_processes > 1)
-        MPI_Gather(&bestCost, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        double costs[num_processes];
+        if (num_processes > 1)
+            MPI_Gather(&bestCost, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-    if(bestCost == results.second)
-        MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
+        if(bestCost == results.second)
+            MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
+
+        if(rank == 0)
+            MPI_Recv(bestTour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }else {
+        bestTour = results.first;
+        bestCost = results.second;
+    }
 
     if(rank == 0) {
-        double min_cost = 1000000;
-        int min_index;
-        vector<int> best_tour(numCities+1);
-
-        for(int i=0; i<num_processes; i++) {
-            if(costs[i] < min_cost) {
-                min_cost = costs[i];
-                min_index = i;
-            }
-        }
-        // printf("After for!\n");
-        if(min_cost == 1000000) {
-            cout << "NO SOLUTION" << endl;
-        }else {
-            if (num_processes > 1) {
-                MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            }else {
-                best_tour = results.first;
-                min_cost = results.second;
-            }
-        }
-        // printf("after if else!\n");
-
         end_time = MPI_Wtime();
 
         fprintf(stderr, "%fs\n", end_time-start_time);
