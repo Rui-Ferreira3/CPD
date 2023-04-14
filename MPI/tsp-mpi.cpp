@@ -279,7 +279,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
 
     if(myQueue.size() >= NUM_ITERATIONS) {
         for(int i=0; i<NUM_SWAPS; i++) {
-            QueueElem elemToSend = startElems.pop();
+            QueueElem elemToSend = myQueue.pop();
             send_element(dest, 2, &elemToSend, elem_type);
         }
     }
