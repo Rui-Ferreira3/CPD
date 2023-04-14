@@ -288,7 +288,7 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     pos += sizeof(int);
     memcpy(&buffer[pos], &elem.node, sizeof(int));
     MPI_Send(&buffer[0], size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
-    printf("Sent element:\n");
+    // printf("Sent element:\n");
     printQueueElem(elem);
 }
 
@@ -309,8 +309,8 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     memcpy(&elem.length, &buffer[pos], sizeof(double));
     pos += sizeof(int);
     memcpy(&elem.node, &buffer[pos], sizeof(int));
-    printf("Received element:\n");
-    printQueueElem(elem);
+    // printf("Received element:\n");
+    // printQueueElem(elem);
     return elem;
 }
 
