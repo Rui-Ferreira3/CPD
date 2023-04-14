@@ -205,7 +205,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }else
                     cnt++;
             }
-            // printf("Iteration %d of rank %d\n", cnt, rank);
+            printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
         int size = myQueue.size();
@@ -297,8 +297,8 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
         if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
-            printf("Process %d received:\n", rank);
-            printQueueElem(newElem);
+            // printf("Process %d received:\n", rank);
+            // printQueueElem(newElem);
         }
     }
 }
