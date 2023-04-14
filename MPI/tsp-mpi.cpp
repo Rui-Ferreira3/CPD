@@ -389,8 +389,6 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost==results.second && results.first.size()==numCities+1) {
-            printf("Best rank: %d\n", rank);
-            print_result(results.first, results.second);
             if (rank == 0) {
                 bestTour = results.first;
             }else {
@@ -400,8 +398,6 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
 
         double costs[num_processes];
         MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        
-        printf("Gathered costs in %d\n", rank);
 
         if(rank == 0) {
             for(int i=0; i<num_processes; i++) {
