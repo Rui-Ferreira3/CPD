@@ -142,8 +142,7 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
             int last;
             for(int i=1; i<num_processes; i++) {
                 for(int j=0; j<elementPerProcess; j++) {
-                    QueueElem elemToSend = startElems.pop();
-                    send_element(i, j, &elemToSend, elem_type);
+                    send_element(i, j, startElems.pop();, elem_type);
                     // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                     last = i*elementPerProcess;
                 }
@@ -251,7 +250,7 @@ MPI_Datatype create_MPI_type() {
     return elem_type;
 }
 
-void send_element(int dest, int tag, QueueElem &elem, MPI_Datatype elem_type) {
+void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     MPI_Send(&elem, 1, elem_type, dest, tag, MPI_COMM_WORLD);
     int tour_size = elem.tour.size();
     MPI_Send(&tour_size, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
@@ -279,8 +278,7 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
 
     if(myQueue.size() >= NUM_ITERATIONS) {
         for(int i=0; i<NUM_SWAPS; i++) {
-            QueueElem elemToSend = myQueue.pop();
-            send_element(dest, 2, &elemToSend, elem_type);
+            send_element(dest, 2, myQueue.pop(), elem_type);
         }
     }
 }
