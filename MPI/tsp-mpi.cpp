@@ -1,6 +1,6 @@
 #include "tsp-mpi.h"
 
-#define NUM_SWAPS 50
+#define NUM_SWAPS 10
 #define NUM_ITERATIONS 500
 
 int main(int argc, char *argv[]) {
@@ -281,13 +281,11 @@ void redistribute_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Data
         dest = rank-1;
     }
 
-    // if(myQueue.size() > NUM_SWAPS) {
-    //     for(int i=0; i<NUM_SWAPS; i++) {
-    //         send_element(dest, 2, myQueue.pop(), elem_type);
-    //     }
-    // }
-    if(myQueue.size() > 1)
-        send_element(dest, 2, myQueue.pop(), elem_type);
+    if(myQueue.size() > NUM_SWAPS) {
+        for(int i=0; i<NUM_SWAPS; i++) {
+            send_element(dest, 2, myQueue.pop(), elem_type);
+        }
+    }
 }
 
 void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type) {
