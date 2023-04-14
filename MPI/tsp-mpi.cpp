@@ -1,7 +1,7 @@
 #include "tsp-mpi.h"
 
 #define NUM_SWAPS 10
-#define NUM_ITERATIONS 500
+#define NUM_ITERATIONS 100
 
 int main(int argc, char *argv[]) {
     double exec_time;
@@ -210,18 +210,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 flag = 0;
             }
         }
-        // printf("Iteration %d of rank %d\n", cnt, rank);
-        // if(num_processes > 1)
-        //     redistribute_elements(myQueue, rank, elem_type);
-        
-        // int size = myQueue.size();
-        // MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-        // cout << fixed << BestTourCost << endl;
-        // for(int i=0; i<BestTour.size(); i++) {
-        //     cout << BestTour[i] << " ";
-        // }
-        // cout << endl;
-        // printf("Total number of elements in queues is %d\n", flag);
     }
 
     printf("Rank: %d\n", rank);
