@@ -163,6 +163,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 
     vector <int> BestTour;
     BestTour.reserve(numCities+1);
+    myQueue.print(printQueueElem);
     
     int cnt=0;
     int flag=5;
@@ -209,11 +210,11 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         
         int size = myQueue.size();
         MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-        cout << fixed << BestTourCost << endl;
-        for(int i=0; i<BestTour.size(); i++) {
-            cout << BestTour[i] << " ";
-        }
-        cout << endl;
+        // cout << fixed << BestTourCost << endl;
+        // for(int i=0; i<BestTour.size(); i++) {
+        //     cout << BestTour[i] << " ";
+        // }
+        // cout << endl;
         // printf("Total number of elements in queues is %d\n", flag);
     }
 
