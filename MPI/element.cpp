@@ -22,7 +22,7 @@ struct QueueElem{
 void printQueueElem(QueueElem myElem) {
     cout << "Node: " << myElem.node << endl;
     cout << "Tour: ";
-    for(int i=0; i<numCities+1; i++) {
+    for(int i=0; i<20; i++) {
         cout << myElem.tour.at(i) << " ";
     }
     cout << endl;
