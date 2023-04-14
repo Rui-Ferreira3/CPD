@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
         double costs[num_processes];
         MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        for(int i=0) {
+        for(int i=0; i<num_processes; i++) {
             if(costs[i] == bestCost)
                 bestRank = i;
         }
