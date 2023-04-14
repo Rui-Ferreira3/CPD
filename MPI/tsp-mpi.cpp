@@ -390,7 +390,7 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
 
         if(bestCost==results.second && results.first.size()==numCities+1) {
             printf("Best rank: %d\n", rank);
-            print_result(results.second, results.first);
+            print_result(results.first, results.second);
             if (rank == 0) {
                 bestTour = results.first;
             }else {
