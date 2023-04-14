@@ -62,16 +62,16 @@ run_all_local:
 
 run_n:
 	@echo N=1
-	mpirun -n 1 tsp-mpi $(FILE) $(VAL)
+	srun -n 1 tsp-mpi $(FILE) $(VAL)
 	@echo N=2
-	mpirun -n 2 tsp-mpi $(FILE) $(VAL)
+	srun -n 2 tsp-mpi $(FILE) $(VAL)
 	@echo N=4
-	mpirun -n 4 tsp-mpi $(FILE) $(VAL)
+	srun -n 4 tsp-mpi $(FILE) $(VAL)
 	@echo N=8
-	mpirun -n 8 tsp-mpi $(FILE) $(VAL)
+	srun -n 8 tsp-mpi $(FILE) $(VAL)
 	@echo N=16
-	mpirun -n 16 tsp-mpi $(FILE) $(VAL)
+	srun -n 16 tsp-mpi $(FILE) $(VAL)
 	@echo N=32
-	mpirun -n 32 tsp-mpi $(FILE) $(VAL)
+	srun -n 32 tsp-mpi $(FILE) $(VAL)
 	# @echo N=64
 	# srun -n 64 tsp-mpi $(FILE) $(VAL)
