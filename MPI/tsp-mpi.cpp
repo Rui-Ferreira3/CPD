@@ -278,7 +278,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         // printf("Total number of elements in queues is %d\n", flag);
     }
 
-    printf("Got here!")
+    printf("Got here!");
 
     return make_pair(BestTour, BestTourCost);
 }
