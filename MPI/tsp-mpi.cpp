@@ -93,6 +93,8 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
+    printf("Got here!\n");
+
     // printf("Rank %d\n", rank);
     // print_result(results.first, results.second);
 
@@ -279,8 +281,6 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         // MPI_Bcast(&flag, 1, MPI_INT, 0, MPI_COMM_WORLD);
         // printf("Total number of elements in queues is %d\n", flag);
     }
-
-    printf("Got here!\n");
 
     return make_pair(BestTour, BestTourCost);
 }
