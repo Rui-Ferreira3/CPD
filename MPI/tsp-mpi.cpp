@@ -12,15 +12,16 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_processes);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    if(rank == 0) {
+
         if(parse_inputs(argc, argv) == -1) {
             MPI_Finalize();
             exit(-1);
         }
+    if(rank == 0) {
         start_time = MPI_Wtime();
     }
 
-    share_inputs(rank);
+    // share_inputs(rank);
 
     PriorityQueue<QueueElem> startElems;
     if(rank == 0)
