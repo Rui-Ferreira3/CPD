@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
 
         print_result(best.first, best.second);
     }
+    printf("Process %d finished\n", rank);
 
     MPI_Finalize();
     return 0;
