@@ -238,8 +238,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
-            // if(num_processes > 1)
-            //     update_BestTour(rank, BestTour);
+            if(num_processes > 1)
+                update_BestTour(rank, BestTour);
 
             if(myElem.bound >= BestTourCost) {
                 myQueue.clear();
@@ -259,13 +259,13 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                     create_children(myElem, myQueue, mins);
             }
 
-            // if(num_processes > 0) {
-            //     if(cnt > NUM_ITERATIONS) {
-            //         redistribute_elements(myQueue, rank, elem_type);
-            //         cnt = 0;
-            //     }else
-            //         cnt++;
-            // }
+            if(num_processes > 1) {
+                if(cnt > NUM_ITERATIONS) {
+                    redistribute_elements(myQueue, rank, elem_type);
+                    cnt = 0;
+                }else
+                    cnt++;
+            }
             // printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
