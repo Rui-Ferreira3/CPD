@@ -69,10 +69,6 @@ run_n:
 	mpirun -n 3 tsp-mpi $(FILE) $(VAL)
 	@echo N=4
 	mpirun -n 4 tsp-mpi $(FILE) $(VAL)
-	@echo N=5
-	mpirun -n 5 tsp-mpi $(FILE) $(VAL)
-	@echo N=6
-	mpirun -n 6 tsp-mpi $(FILE) $(VAL)
 	# @echo N=8
 	# srun -n 8 tsp-mpi $(FILE) $(VAL)
 	# @echo N=16

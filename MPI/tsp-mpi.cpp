@@ -171,8 +171,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
     int cnt=0;
     int flag=5;
     while(flag != 0){
-        // if(num_processes > 1)
-        //     get_elements(myQueue, rank, elem_type);
+        if(num_processes > 1)
+            get_elements(myQueue, rank, elem_type);
 
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
@@ -198,14 +198,14 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                     create_children(myElem, myQueue, mins);
             }
 
-            // if(num_processes > 1) {
-            //     if(cnt > NUM_ITERATIONS) {
-            //         redistribute_elements(myQueue, rank, elem_type);
-            //         cnt = 0;
-            //     }else
-            //         cnt++;
-            // }
-            // printf("Iteration %d of rank %d\n", cnt, rank);
+            if(num_processes > 1) {
+                if(cnt > NUM_ITERATIONS) {
+                    redistribute_elements(myQueue, rank, elem_type);
+                    cnt = 0;
+                }else
+                    cnt++;
+            }
+            printf("Iteration %d of rank %d\n", cnt, rank);
         }
         
         int size = myQueue.size();
@@ -292,11 +292,13 @@ void get_elements(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem
     }
 
     int flag;
+    printf("Process %d received the following elements.\n", rank);
     for(int i=0; i<NUM_SWAPS; i++) {
         MPI_Iprobe(source, 2, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
         if(flag) {
             QueueElem newElem = recv_element(source, 2, elem_type);
             myQueue.push(newElem);
+            printQueueElem(newElem);
         }
     }
 }
