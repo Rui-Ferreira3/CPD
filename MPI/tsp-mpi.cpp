@@ -32,9 +32,9 @@ int main(int argc, char *argv[]) {
     MPI_Datatype elem_type = create_MPI_type();
 
     int elementPerProcess = startElems.size()/num_processes;
-    if (num_processes > 1) {
-        MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    }
+    // if (num_processes > 1) {
+    //     MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    // }
 
     PriorityQueue<QueueElem> myQueue;
     split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
