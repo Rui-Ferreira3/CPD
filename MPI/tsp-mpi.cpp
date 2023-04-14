@@ -275,7 +275,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         }
         
         int size = myQueue.size();
-        MPI_Alleduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
         // MPI_Reduce(&size, &flag, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
         // MPI_Bcast(&flag, 1, MPI_INT, 0, MPI_COMM_WORLD);
         // printf("Total number of elements in queues is %d\n", flag);
