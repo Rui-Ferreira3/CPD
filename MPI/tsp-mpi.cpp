@@ -202,12 +202,10 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
 
         if(num_processes > 1) {
             if(cnt > NUM_ITERATIONS) {
+                redistribute_elements(myQueue, rank, elem_type);
+                cnt = 0;
                 int size = myQueue.size();
                 MPI_Allreduce(&size, &flag, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-                if(!flag) {
-                    redistribute_elements(myQueue, rank, elem_type);
-                    cnt = 0;
-                }
             }else
                 cnt++;
         }else {
