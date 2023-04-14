@@ -3,7 +3,7 @@
 # compiler flags:
 #  -g     - this flag adds debugging information to the executable file
 #  -Wall  - this flag is used to turn on most compiler warnings
-NUM_PROCESSES = 2
+NUM_PROCESSES = 4
 FILE = gen19-23.in
 VAL = 23
 # The build target
@@ -59,3 +59,19 @@ run_all_local:
 	mpirun -n $(NUM_PROCESSES) tsp-mpi gen26-50000.in 50000
 	@echo gen30
 	mpirun -n $(NUM_PROCESSES) tsp-mpi gen30-5000.in 5000
+
+run_n:
+	@echo N=1
+	mpirun -n 1 tsp-mpi $(FILE) $(VAL)
+	@echo N=2
+	mpirun -n 2 tsp-mpi $(FILE) $(VAL)
+	@echo N=4
+	mpirun -n 4 tsp-mpi $(FILE) $(VAL)
+	@echo N=8
+	mpirun -n 8 tsp-mpi $(FILE) $(VAL)
+	@echo N=16
+	mpirun -n 16 tsp-mpi $(FILE) $(VAL)
+	@echo N=32
+	mpirun -n 32 tsp-mpi $(FILE) $(VAL)
+	# @echo N=64
+	# srun -n 64 tsp-mpi $(FILE) $(VAL)
