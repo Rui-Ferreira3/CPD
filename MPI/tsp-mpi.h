@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <cstring>
 
 #include <omp.h>
 #include <mpi.h>
