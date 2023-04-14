@@ -180,7 +180,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             QueueElem myElem = myQueue.pop();
 
             if(num_processes > 1)
-                globalBestCost = update_BestTour(rank, BestTour);
+                globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
 
             if(myElem.bound >= BestTourCost || myElem.bound >= globalBestCost) {
                 myQueue.clear();
