@@ -188,11 +188,11 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 if(myElem.length == numCities) {
                     double dist = distances[myElem.node][0];
                     if(dist > 0) {
-                        if(myElem.cost + dist <= BestTourCost && myElem.cost + dist <= globalBestCost) {
+                        if(myElem.cost + dist <= BestTourCost) {
                             BestTour = myElem.tour;
                             BestTour.push_back(0);
                             BestTourCost = myElem.cost + dist;
-                            if(num_processes > 1)
+                            if(num_processes > 1 && myElem.cost + dist < globalBestCost)
                                 send_BestTourCost(rank);
                         }
                     }
