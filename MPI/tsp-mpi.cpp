@@ -107,8 +107,6 @@ int main(int argc, char *argv[]) {
                     0, MPI_COMM_WORLD);
     }
 
-    printf("Got here!\n");
-
     if(rank != 0)
         MPI_Send(results.first.data(), results.first.size(), MPI_INT, 0, 123, MPI_COMM_WORLD);
     
@@ -142,7 +140,6 @@ int main(int argc, char *argv[]) {
 
         print_result(best_tour, min_cost);
     }
-    printf("Got here!\n");
 
     MPI_Finalize();
     return 0;
