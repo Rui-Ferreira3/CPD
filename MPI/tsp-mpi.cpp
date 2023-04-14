@@ -138,7 +138,7 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
             int last;
             for(int i=1; i<num_processes; i++) {
                 for(int j=0; j<elementPerProcess; j++) {
-                    send_element(i, j, startElems.pop(), elem_type);
+                    send_element(i, j, startElems.pop();, elem_type);
                     // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                     last = i*elementPerProcess;
                 }
