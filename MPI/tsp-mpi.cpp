@@ -212,9 +212,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(flag == 0) {
             cout << fixed << BestTourCost << endl;
             for(int i=0; i<numCities+1; i++) {
-                cout << BestTour[i] << " ";
+                cout << BestTour[i] << endl;
             }
-            cout << endl;
         }
         // printf("Total number of elements in queues is %d\n", flag);
     }
