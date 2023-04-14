@@ -7,16 +7,13 @@ NUM_PROCESSES = 2
 FILE = gen24-50000.in
 VAL = 50000
 # The build target
-all: tsp-mpi tsp-mpi.o element.o
+all: tsp-mpi tsp-mpi.o
 
 tsp-mpi.o: tsp-mpi.cpp tsp-mpi.h
 	mpic++ -c -O3 -fopenmp tsp-mpi.cpp
 
-element.o: element.cpp
-	mpic++ -c -O3 -fopenmp element.cpp
-
-tsp-mpi: tsp-mpi.o element.o
-	mpic++ -g -Wall -O3 -o tsp-mpi -fopenmp tsp-mpi.o element.o
+tsp-mpi: tsp-mpi.o
+	mpic++ -g -Wall -O3 -o tsp-mpi -fopenmp tsp-mpi.o
 
 clean:
 	-rm -f tsp-mpi *.o
