@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
         MPI_Allreduce(&results.second, &bestCost, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
         if(bestCost == results.second) {
+            printf("Best rank: %d", rank);
             if (rank == 0) {
                 bestTour = results.first;
             }else {
@@ -111,8 +112,9 @@ int main(int argc, char *argv[]) {
             
         if(rank == 0) {
             for(int i=0; i<num_processes; i++) {
-                if(costs[i] == bestCost)
+                if(costs[i] == bestCost) {
                     bestRank = i;
+                }
             }
 
             if(bestRank != 0) {
