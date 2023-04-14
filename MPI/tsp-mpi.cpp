@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
                 min_index = i;
             }
         }
-        printf("After for!\n");
+        // printf("After for!\n");
         if(min_cost == 1000000) {
             cout << "NO SOLUTION" << endl;
         }else {
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
                 min_cost = results.second;
             }
         }
-        printf("after if else!\n");
+        // printf("after if else!\n");
 
         end_time = MPI_Wtime();
 
