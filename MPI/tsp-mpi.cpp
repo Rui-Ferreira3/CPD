@@ -210,6 +210,10 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                 }
             }else
                 cnt++;
+        }else {
+            if(myQueue.size() == 0) {
+                flag = 0;
+            }
         }
         // printf("Iteration %d of rank %d\n", cnt, rank);
         // if(num_processes > 1)
