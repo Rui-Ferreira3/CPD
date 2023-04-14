@@ -44,14 +44,14 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    // pair<vector <int>, double> best = get_results(rank, results);
+    pair<vector <int>, double> best = get_results(rank, results);
 
     if(rank == 0) {
         end_time = MPI_Wtime();
 
         fprintf(stderr, "%.1fs\n", end_time-start_time);
 
-        print_result(results.first, results.second);
+        print_result(best.first, best.second);
     }
     // printf("Process %d finished\n", rank);
 
@@ -143,26 +143,20 @@ void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<Qu
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
     if (rank == 0) {
         if (num_processes > 1) {
-            // send the array of QueueElem data to process 1
             int last;
             for(int i=1; i<num_processes; i++) {
                 for(int j=0; j<elementPerProcess; j++) {
                     send_element(i, j, startElems.pop(), elem_type);
-                    // printf("Sent node %d to process %d\n", startElems[(i-1)*elementPerProcess+j].node, i);
                     last = i*elementPerProcess;
                 }
             }
         }
 
         myQueue = startElems;
-        // printf("Rank: %d Node: %d\n", rank, startElems[h].node);
     }else {
-        // receive the array of QueueElem data from process 0
         for(int i=0; i<elementPerProcess; i++) {
             QueueElem myElem = recv_element(0, i, elem_type);
-            // printf("Received node %d in process %d\n", myElem.node, rank);
             myQueue.push(myElem);
-            // printf("Rank: %d Node: %d\n", rank, myElem.node);
         }
     }
 }
@@ -184,8 +178,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
         if(myQueue.size() > 0) {
             QueueElem myElem = myQueue.pop();
 
-            // if(num_processes > 1)
-            //     globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
+            if(num_processes > 1)
+                globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
 
             if(myElem.bound >= BestTourCost || myElem.bound >= globalBestCost) {
                 myQueue.clear();
@@ -197,8 +191,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                             BestTour = myElem.tour;
                             BestTour.push_back(0);
                             BestTourCost = myElem.cost + dist;
-                            // if(num_processes > 1 && myElem.cost + dist < globalBestCost)
-                            //     send_BestTourCost(rank);
+                            if(num_processes > 1 && myElem.cost + dist < globalBestCost)
+                                send_BestTourCost(rank);
                         }
                     }
                 }else 
