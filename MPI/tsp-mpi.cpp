@@ -15,7 +15,10 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if(rank == 0) {
-        parse_inputs(argc, argv);
+        if(parse_inputs(argc, argv) == 0) {
+            MPI_Finalize();
+            exit(-1);
+        }
         start_time = MPI_Wtime();
     }
 
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void parse_inputs(int argc, char *argv[]) {
+int parse_inputs(int argc, char *argv[]) {
     string line;
     ifstream myfile (argv[1]);
 
@@ -63,13 +66,13 @@ void parse_inputs(int argc, char *argv[]) {
     double val;
 
     if(argc-1 != 2)
-        exit(-1);
+        return -1;
 
     if (myfile.is_open()){
         getline(myfile, line);
         sscanf(line.c_str(), "%d %d", &numCities, &numRoads);
     }else
-        exit(-1);
+        return -1;
 
     for(int i=0; i<numCities; i++) {
         vector <double> ones(numCities, -1.0);
@@ -84,9 +87,10 @@ void parse_inputs(int argc, char *argv[]) {
         }
         myfile.close();
     }else 
-        exit(-1);
+        return -1;
 
     BestTourCost = atof(argv[2]);
+    return 0;
 }
 
 void share_inputs(int rank) {

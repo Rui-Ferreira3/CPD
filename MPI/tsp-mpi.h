@@ -13,7 +13,7 @@ using namespace std;
 #include "queue.hpp"
 #include "element.cpp"
 
-void parse_inputs(int argc, char *argv[]);
+int parse_inputs(int argc, char *argv[]);
 void share_inputs(int rank);
 void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue);
 void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess);
