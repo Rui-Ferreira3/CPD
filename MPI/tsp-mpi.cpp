@@ -236,7 +236,7 @@ void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vecto
             double newBound = calculateLB(mins, myElem.node, v, myElem.bound);                       
             if(newBound <= BestTourCost) {
                 vector <int> newTour = myElem.tour;
-                newTour.push_back(v);
+                newTour[myElem.length+1] = v;
                 myQueue.push({newTour, myElem.cost + dist, newBound, myElem.length+1, v});
             }
         }
