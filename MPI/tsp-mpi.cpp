@@ -275,7 +275,7 @@ MPI_Datatype create_MPI_type() {
 void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     elem.tour.resize(numCities+1);
     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-    char buffer[size];
+    char buffer[size] = {};
     for(int i=0; i<numCities+1; i++) {
         memcpy(&buffer[pos], &elem.tour[i], sizeof(int));
         pos += sizeof(int);
@@ -288,15 +288,15 @@ void send_element(int dest, int tag, QueueElem elem, MPI_Datatype elem_type) {
     pos += sizeof(int);
     memcpy(&buffer[pos], &elem.node, sizeof(int));
     MPI_Send(&buffer, size, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
-    printf("Sent element:");
-    printQueueElem(elem);
+    cout << "Sent element:" << buffer << endl;
 }
 
 QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     QueueElem elem;
     int size = (numCities+1)*sizeof(int) + 2*sizeof(int) + 2*sizeof(double), pos = 0;
-    char buffer[size];
+    char buffer[size] = {};
     MPI_Recv(&buffer, size, MPI_CHAR, source, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    cout << "Received element:" << buffer << endl;
     for(int i=0; i<numCities+1; i++) {
         memcpy(&elem.tour[i], &buffer[pos], sizeof(int));
         pos += sizeof(int);
@@ -308,8 +308,6 @@ QueueElem recv_element(int source, int tag, MPI_Datatype elem_type) {
     memcpy(&elem.length, &buffer[pos], sizeof(double));
     pos += sizeof(int);
     memcpy(&elem.node, &buffer[pos], sizeof(int));
-    printf("Received element:");
-    printQueueElem(elem);
     return elem;
 }
 
