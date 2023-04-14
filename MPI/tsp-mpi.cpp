@@ -398,6 +398,8 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
             }
         }
 
+        printf("Sent tour in %d\n", rank);
+
         double costs[num_processes];
         MPI_Gather(&results.second, 1, MPI_DOUBLE, &costs[0], 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             
