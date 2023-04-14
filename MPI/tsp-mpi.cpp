@@ -182,7 +182,7 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
             get_elements(myQueue, rank, elem_type);
 
         if(myQueue.size() > 0) {
-            QueueElem myElem = myQueue.pop();
+            // QueueElem myElem = myQueue.pop();
 
             // if(num_processes > 1)
             //     globalBestCost = update_BestTour(rank, BestTour, globalBestCost);
@@ -197,8 +197,8 @@ pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_
                             BestTour = myElem.tour;
                             BestTour.push_back(0);
                             BestTourCost = myElem.cost + dist;
-                            if(num_processes > 1 && myElem.cost + dist < globalBestCost)
-                                send_BestTourCost(rank);
+                            // if(num_processes > 1 && myElem.cost + dist < globalBestCost)
+                            //     send_BestTourCost(rank);
                         }
                     }
                 }else 
