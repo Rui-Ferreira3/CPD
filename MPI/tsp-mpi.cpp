@@ -194,6 +194,12 @@ void parse_inputs(int argc, char *argv[]) {
 void print_result(vector <int> BestTour, double BestCost) {
     if(BestTour.size() != numCities+1) {
         cout << "NO SOLUTION" << endl;
+        cout.precision(1);
+        cout << fixed << BestCost << endl;
+        for(int i=0; i<numCities+1; i++) {
+            cout << BestTour[i] << " ";
+        }
+        cout << endl;
     } else {
         cout.precision(1);
         cout << fixed << BestCost << endl;
