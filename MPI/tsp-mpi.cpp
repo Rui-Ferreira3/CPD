@@ -44,14 +44,14 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    pair<vector <int>, double> best = get_results(rank, results);
+    // pair<vector <int>, double> best = get_results(rank, results);
 
     if(rank == 0) {
         end_time = MPI_Wtime();
 
         fprintf(stderr, "%.1fs\n", end_time-start_time);
 
-        print_result(best.first, best.second);
+        print_result(results.first, results.second);
     }
     // printf("Process %d finished\n", rank);
 
