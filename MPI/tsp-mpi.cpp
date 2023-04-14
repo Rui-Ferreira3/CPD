@@ -328,12 +328,11 @@ int update_BestTour(int rank, vector <int> &BestTour) {
                 MPI_Recv(&newBest, 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 if(newBest < BestTourCost) {
                     return newBest;
-                }else {
-                    return BestTourCost;
                 }
             }
         }
     }
+    return BestTourCost;
 }
 
 vector<pair<double,double>> get_mins() {
