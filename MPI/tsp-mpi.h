@@ -16,7 +16,7 @@ using namespace std;
 void parse_inputs(int argc, char *argv[]);
 void share_inputs(int rank);
 void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue);
-void split_tasks(PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess);
+void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess);
 
 pair<vector <int>, double> tsp(PriorityQueue<QueueElem> &myQueue, int rank, MPI_Datatype elem_type);
 void create_children(QueueElem &myElem, PriorityQueue<QueueElem> &myQueue, vector<pair<double,double>> &mins);

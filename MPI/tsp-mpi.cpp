@@ -25,7 +25,6 @@ int main(int argc, char *argv[]) {
     if(rank == 0)
         create_tasks(num_processes, startElems);
 
-    
     // create an MPI data type for QueueElem
     MPI_Datatype elem_type = create_MPI_type();
 
@@ -34,9 +33,8 @@ int main(int argc, char *argv[]) {
         MPI_Bcast(&elementPerProcess, 1, MPI_INT, 0, MPI_COMM_WORLD);
     }
 
-
     PriorityQueue<QueueElem> myQueue;
-    split_tasks(startElems, myQueue, elem_type, elementPerProcess);
+    split_tasks(rank, startElems, myQueue, elem_type, elementPerProcess);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -50,7 +48,7 @@ int main(int argc, char *argv[]) {
 
         fprintf(stderr, "%fs\n", end_time-start_time);
 
-        print_result(bestTour, bestCost);
+        print_result(best.first, best.second);
     }
 
     MPI_Finalize();
@@ -136,7 +134,7 @@ void create_tasks(int num_processes, PriorityQueue<QueueElem> &startQueue) {
     }
 }
 
-void split_tasks(PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess) {
+void split_tasks(int rank, PriorityQueue<QueueElem>&startElems, PriorityQueue<QueueElem> &myQueue, MPI_Datatype elem_type, int elementPerProcess) {
     QueueElem elem = {{0}, 0.0, 100.0, 1, 0};
     if (rank == 0) {
         if (num_processes > 1) {
@@ -415,7 +413,7 @@ pair<vector <int>, double> get_results(int rank, pair<vector<int>, double> resul
         bestTour = results.first;
         bestCost = results.second;
     }
-    
+
     return make_pair(bestTour, bestCost);
 }
 
