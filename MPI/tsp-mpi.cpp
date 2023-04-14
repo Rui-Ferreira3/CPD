@@ -121,18 +121,18 @@ int main(int argc, char *argv[]) {
                 min_index = i;
             }
         }
-        // printf("After for!\n");
-        if(min_cost == 1000000) {
-            cout << "NO SOLUTION" << endl;
-        }else {
+        
+        // if(min_cost == 1000000) {
+        //     cout << "NO SOLUTION" << endl;
+        // }else {
             if (num_processes > 1) {
                 MPI_Recv(best_tour.data(), numCities+1, MPI_INT, min_index, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }else {
                 best_tour = results.first;
                 min_cost = results.second;
             }
-        }
-        // printf("after if else!\n");
+        // }
+        
 
         end_time = MPI_Wtime();
 
