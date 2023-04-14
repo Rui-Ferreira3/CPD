@@ -93,12 +93,14 @@ int main(int argc, char *argv[]) {
     // calculate tsp
     pair<vector<int>, double> results = tsp(myQueue, rank, elem_type);
 
-    printf("Rank %d\n", rank);
-    print_result(results.first, results.second);
+    // printf("Rank %d\n", rank);
+    // print_result(results.first, results.second);
 
     double bestCost = results.second;
     if(results.first.size() < numCities+1)
         bestCost = -1.0;
+
+    printf("Got here!\n");
 
     double costs[num_processes];
     if (num_processes > 1) {
